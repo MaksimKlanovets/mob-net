@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "memory": "cpp",
+        "string.h": "c",
+        "parser.h": "c",
+        "xpath.h": "c",
+        "context.h": "c",
+        "*.in": "c",
+        "compat.h": "c",
+        "hash_table.h": "c",
+        "resolve.h": "c",
+        "common.h": "c",
+        "dict.h": "c",
+        "libyang.h": "c",
+        "extensions.h": "c",
+        "tree_schema.h": "c",
+        "tree_internal.h": "c",
+        "tree_data.h": "c",
+        "validation.h": "c",
+        "xml_internal.h": "c",
+        "printer.h": "c",
+        "parser_yang.h": "c",
+        "parser_yang_lex.h": "c",
+        "user_types.h": "c",
+        "plugin_config.h": "c"
+    }
+}

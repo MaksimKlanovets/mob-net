@@ -1,0 +1,16 @@
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <users xmlns="ns:mobNetwork">
+     <subscriber>
+	<number>+380643212341</number>
+       <userName>Maks</userName>
+        <incomingNumber>+7900000000001</incomingNumber>
+       <status>hangUp</status>
+     </subscriber>
+   </users>
+  </config>
+</edit-config>
