@@ -30,11 +30,12 @@ container users
                 mandatory true;
                 type enumeration {
                     enum busy; 
-                    enum hangUp; 
-                    enum active;
+                    
+                    enum active ;
                     enum idle;
                     }
         } 
+        
     }
 }
 
