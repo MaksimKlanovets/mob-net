@@ -1,129 +1,77 @@
 #include <iostream>
+#include <map>
+#include <functional>
+#include <vector>
+#include <string>
 
 using namespace std;
 
-struct COMAND
-{
-   const string c_register   = "register";//arg
-   const string c_unregister = "unregister";
-   const string c_call       = "call";//arg
-   const string c_name       = "name";//arg
-   const string c_answer     = "answer";
-   const string c_reject     = "reject";
-   const string c_callEnd    = "callEnd";
-   const string c_help       = "help";
-   const string c_exit       = "exit";    
-};
-
 //erase temp comands
 void resetData(string &str1,string &str2);
-void resetData(string &str1);
-
 //pring list of commmands
-void listCommands();
+void listCommands(const vector<string> &com);
 //if ch = 0 must arg if ch=1 than cannot arg
 void printErr(const string &com, int ch = 0);
+//separate arg from comman, return if arg exist
+bool separateComArg(string &com,string &arg);
+//command must contain an arg
+bool cMustArg(const string &com, const string &arg); 
+//command hasn't to contain an arg
+bool cNoArg(const string &com, const string &arg);
 
 int main()
 {
-COMAND menu;
-while(true){    
-    string tempComand{};
-    string tempArg{};  
+string tempComand {};
+string tempArg{};
+bool isReg = false;
 
+//commands with arg register,call,name
+const vector<string> m_com{"register","unregister","call","name",
+                        "answer","reject","callEnd","help","exit"};
+
+map<string,function<void()>> my_map;
+ 
+my_map.emplace("help", [&m_com]() { listCommands(m_com); });
+my_map.emplace("register",[&tempComand,&tempArg,&isReg](){
+    if (cMustArg(tempComand,tempArg) && !isReg)
+    {
+       isReg = true;
+    }
+    else if (isReg){
+    cout << "Only one registration" << endl;
+    }
+});
+my_map.emplace("unregister",[&tempComand,&tempArg](){
+cNoArg(tempComand,tempArg);
+});
+my_map.emplace("call", [&tempComand,&tempArg]() {
+    cMustArg(tempComand,tempArg);
+ });
+my_map.emplace("name", [&tempComand,&tempArg]() {
+    cMustArg(tempComand,tempArg);
+ });
+my_map.emplace("answer", [&tempComand,&tempArg]() { 
+    cNoArg(tempComand,tempArg);
+});
+my_map.emplace("reject", [&tempComand,&tempArg]() { 
+    cNoArg(tempComand,tempArg);
+});
+my_map.emplace("callEnd", [&tempComand,&tempArg]() { 
+    cNoArg(tempComand,tempArg);
+});
+my_map.emplace("exit", []() { 
+cout <<"Exit" <<endl;
+});
+
+while (true)
+{
+    resetData(tempComand,tempArg);
     getline(cin,tempComand);
+    separateComArg(tempComand,tempArg);
+    map<string,function<void()>>::iterator it = my_map.find(tempComand);
+    it->second();
+}
 
-    //separate an argumen if its exist
-    if (tempComand.find(' ') != string::npos) {
-     tempArg = tempComand.substr(tempComand.find(' ')+1,tempComand.size() -1);
-     tempComand.erase(tempComand.find(' '),tempComand.size() -1);
-    }
-    
-    if(tempComand == menu.c_help)    {
-        listCommands();
-        resetData(tempComand,tempArg);
-        continue;
-    }
-
-    if (tempComand == menu.c_register ) {
-        if(tempArg.empty()) {
-            printErr(tempComand);
-            resetData(tempComand);
-            continue;
-        }
-        cout << "command-> " << tempComand << "  Arg-> " << tempArg << endl;
-    }
-
-    else if (tempComand == menu.c_unregister )  {
-        if (!tempArg.empty())   {
-            printErr(tempComand,1);
-            resetData(tempComand,tempArg);
-            continue;
-        }
-        cout << "command unregister" <<endl;
-    }
-
-    else if (tempComand == menu.c_call )    {
-        if (tempArg.empty())    {
-            printErr(tempComand);
-            resetData(tempComand);
-            continue;
-        }            
-        cout << "command " <<tempComand << "  Arg -> " << tempArg << endl;
-    }
-
-    else if (tempComand == menu.c_name )    {
-        if (tempArg.empty())    {
-            printErr(tempComand);
-            resetData(tempComand);
-            continue;
-        }
-        cout << "comman " << tempComand << "  Arg -> " << tempArg << endl;
-    }
-
-    else if (tempComand == menu.c_answer )  {
-        if (!tempArg.empty())   {
-            printErr(tempComand,1);
-            resetData(tempComand,tempArg);
-            continue;
-        }
-        cout << "command answer" <<endl;
-    }
-
-    else if (tempComand == menu.c_reject )  {
-        if (!tempArg.empty())   {
-            printErr(tempComand,1);
-            resetData(tempComand,tempArg);
-            continue;
-        }
-        cout << "command reject" <<endl;
-    }
-
-    else if (tempComand == menu.c_callEnd ) {
-        if (!tempArg.empty())   {
-            printErr(tempComand,1);
-            resetData(tempComand,tempArg);
-            continue;
-        }
-        cout << "comman call end" <<endl;
-    }
-
-    else if (tempComand == menu.c_exit )    {
-        if (!tempArg.empty())   {
-            printErr(tempComand,1);
-            resetData(tempComand,tempArg);
-            continue;
-        }
-        cout << "command exit" <<endl;
-        return 0;
-    }
-
-    else {
-        cout<< "this comman does not exist" << endl;
-        resetData(tempComand,tempArg);
-    }
-      
- }
   return 0;
 }
 
@@ -132,17 +80,11 @@ void resetData(string &str1,string &str2)
     str1.clear();
     str2.clear();
 }
-void resetData(string &str1)
-{
-     str1.clear();
-}
-void listCommands(){
-   const string com[] = {"register","unregister","call","name","answer","reject",
-                    "callEnd","help","exit"};
-                    for(const auto &elem : com )
-                    {
-                        cout<< elem <<endl;
-                    }
+
+void listCommands(const vector<string> &com){
+    for(const auto &elem : com ) {
+    cout<< elem <<endl;
+    }
 }
 
 void printErr(const string &com, int ch ){
@@ -152,4 +94,29 @@ void printErr(const string &com, int ch ){
     if (ch == 1)    {
         cout << com << " cannot contains an argument" << endl;
     }
+}
+bool separateComArg(string &com,string &arg){
+ if (com.find(' ') != string::npos) {
+     arg = com.substr(com.find(' ')+1,com.size() -1);
+     com.erase(com.find(' '),com.size() -1);
+     return true;
+    }
+    return false;
+}
+bool cMustArg(const string &com, const string &arg) {
+if (!arg.empty()) {
+    cout << "command-> " << com << "  Arg-> " << arg << endl;
+    return true;
+}
+printErr(com);
+return false;
+}
+bool cNoArg(const string &com, const string &arg){
+    if (arg.empty())
+    {
+        cout << "command-> " << com  << endl;
+        return true;
+    }
+    printErr(com,1);
+    return false;
 }
