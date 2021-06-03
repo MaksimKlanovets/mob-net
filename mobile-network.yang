@@ -1,44 +1,44 @@
 module mobile-network {
     namespace "ns:mobNetwork";
 
-    prefix mobile;
+    prefix mobnet;
 
-container users
+container core
 {
-   config true; 
-    list subscriber
+   config true;
+
+    list subscribers
     {
        key "number";
 
         leaf userName {
             config false;
             type string;
-            description "user name ";
+            description "User name ";
         }
+
         leaf number {
-            description "user phone number";
+            description "User phone number";
             type string ;
         }
          
-        leaf incomingNumber
-        {
-            description "incoming number";
-        type string;
+        leaf incomingNumber{
+            description "Incoming number";
+            type string;
         }
-        leaf state {
-                description "User's state";
-                mandatory true;
-                type enumeration {
-                    enum busy; 
-                    
-                    enum active ;
-                    enum idle;
-                    }
+
+        leaf state{
+            description "User's state";
+            mandatory true;
+            type enumeration {
+                 enum busy; 
+                 enum active ;
+                 enum idle;
+            }
         } 
         
     }
 }
-
 
    
 }
