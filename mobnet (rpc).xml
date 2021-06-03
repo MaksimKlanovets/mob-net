@@ -9,7 +9,7 @@
 	<number>+380643212341</number>
        <userName>Maks</userName>
         <incomingNumber>+7900000000001</incomingNumber>
-       <status>hangUp</status>
+       <state>idle</state>
      </subscriber>
    </users>
   </config>
