@@ -3,6 +3,10 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include "NetConfAgent.hpp"
+
+
+#include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
 
@@ -19,8 +23,20 @@ bool cMustArg(const string &com, const string &arg);
 //command hasn't to contain an arg
 bool cNoArg(const string &com, const string &arg);
 
-int main()
+int main(int argc, char **argv)
 {
+const char *module_name = nullptr;
+module_name = argv[0];
+cout << "hello"<< endl;
+cout << "Application will watch for changes in " << module_name << endl;
+
+
+NetConfAgent netConfAgent;
+netConfAgent.initSysrepo();
+netConfAgent.subscriberForModelChanges();
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 string tempComand {};
 string tempArg{};
 bool isReg = false;
