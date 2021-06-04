@@ -3,6 +3,10 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include "NetConfAgent.hpp"
+
+
+#include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
 
@@ -19,8 +23,22 @@ bool cMustArg(const string &com, const string &arg);
 //command hasn't to contain an arg
 bool cNoArg(const string &com, const string &arg);
 
-int main()
+int main(int argc, char **argv)
 {
+   const char *module_name = "mobile-network";
+  
+        if (argc > 1) {
+            module_name = argv[1];
+        } else {
+            cout << "\nYou can pass the module name to be subscribed as the first argument" << endl;
+        }
+
+NetConfAgent netConfAgent;
+netConfAgent.initSysrepo();
+netConfAgent.subscriberForModelChanges(*module_name);
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 string tempComand {};
 string tempArg{};
 bool isReg = false;
@@ -34,15 +52,16 @@ map<string,function<void()>> my_map;
 my_map.emplace("help", [&m_com]() { listCommands(m_com); });
 my_map.emplace("register",[&tempComand,&tempArg,&isReg](){
     if (cMustArg(tempComand,tempArg) && !isReg)
-    {
+    { 
        isReg = true;
     }
     else if (isReg){
     cout << "Only one registration" << endl;
     }
 });
-my_map.emplace("unregister",[&tempComand,&tempArg](){
-cNoArg(tempComand,tempArg);
+my_map.emplace("unregister",[&tempComand,&tempArg,&isReg](){
+    cNoArg(tempComand,tempArg);
+    isReg = false;
 });
 my_map.emplace("call", [&tempComand,&tempArg]() {
     cMustArg(tempComand,tempArg);
@@ -60,7 +79,9 @@ my_map.emplace("callEnd", [&tempComand,&tempArg]() {
     cNoArg(tempComand,tempArg);
 });
 my_map.emplace("exit", []() { 
+    //can call isReg
 cout <<"Exit" <<endl;
+return 0;
 });
 
 while (true)

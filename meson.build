@@ -12,7 +12,7 @@ libyang = dependency ('libyang', required : true)
 subdir ('libyangextension/source')
 subdir ('libyangcpp/source')
 subdir ('libsysrepocpp/source')
-
+subdir ('major/source')
 
 libyangextension = static_library(
     'libyangextension',
@@ -63,11 +63,27 @@ libsysrepocpp_dep = declare_dependency (
     ]
 )
 
+major = static_library(
+'major',
+sources : major_path,
+include_directories: [
+  source_include
+  ]
+)
+
+major_dep = declare_dependency(
+    link_with:[major],
+    dependencies :libsysrepocpp_dep,
+    include_directories : [
+        source_include
+    ] 
+)
+
 #add_project_arduments('LIBS=-ldl', language : 'c')
 
 exe = executable('demo', 
 sources : 'main.cpp',
-dependencies : [sysrepo, libsysrepocpp_dep],
+dependencies : [sysrepo, major_dep],
   install : true,
   link_args: ['-lpthread', '-ldl'],
   cpp_args : '-pthread')
