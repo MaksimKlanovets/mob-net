@@ -25,15 +25,17 @@ bool cNoArg(const string &com, const string &arg);
 
 int main(int argc, char **argv)
 {
-const char *module_name = nullptr;
-module_name = argv[0];
-cout << "hello"<< endl;
-cout << "Application will watch for changes in " << module_name << endl;
-
+   const char *module_name = "mobile-network";
+  
+        if (argc > 1) {
+            module_name = argv[1];
+        } else {
+            cout << "\nYou can pass the module name to be subscribed as the first argument" << endl;
+        }
 
 NetConfAgent netConfAgent;
 netConfAgent.initSysrepo();
-netConfAgent.subscriberForModelChanges();
+netConfAgent.subscriberForModelChanges(*module_name);
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,15 +52,16 @@ map<string,function<void()>> my_map;
 my_map.emplace("help", [&m_com]() { listCommands(m_com); });
 my_map.emplace("register",[&tempComand,&tempArg,&isReg](){
     if (cMustArg(tempComand,tempArg) && !isReg)
-    {
+    { 
        isReg = true;
     }
     else if (isReg){
     cout << "Only one registration" << endl;
     }
 });
-my_map.emplace("unregister",[&tempComand,&tempArg](){
-cNoArg(tempComand,tempArg);
+my_map.emplace("unregister",[&tempComand,&tempArg,&isReg](){
+    cNoArg(tempComand,tempArg);
+    isReg = false;
 });
 my_map.emplace("call", [&tempComand,&tempArg]() {
     cMustArg(tempComand,tempArg);
@@ -76,7 +79,9 @@ my_map.emplace("callEnd", [&tempComand,&tempArg]() {
     cNoArg(tempComand,tempArg);
 });
 my_map.emplace("exit", []() { 
+    //can call isReg
 cout <<"Exit" <<endl;
+return 0;
 });
 
 while (true)
