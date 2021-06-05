@@ -1,9 +1,11 @@
-#include <iostream>
 
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
+
 #define MAX_LEN 100
+
+
 
 class NetConfAgent
 {
@@ -39,7 +41,7 @@ print_current_config(sysrepo::S_Session session, const char *module_name);
 // Helper function for printing changes given operation, old and new value. 
 static void
 print_change(sysrepo::S_Change change);
-    
-};
 
+  
+};
 

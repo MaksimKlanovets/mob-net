@@ -10,6 +10,7 @@
 
 using namespace std;
 
+
 //erase temp comands
 void resetData(string &str1,string &str2);
 //pring list of commmands
@@ -25,6 +26,7 @@ bool cNoArg(const string &com, const string &arg);
 
 int main(int argc, char **argv)
 {
+    //////////////////////////////////////////////////////////////
    const char *module_name = "mobile-network";
   
         if (argc > 1) {
@@ -33,9 +35,11 @@ int main(int argc, char **argv)
             cout << "\nYou can pass the module name to be subscribed as the first argument" << endl;
         }
 
+
 NetConfAgent netConfAgent;
 netConfAgent.initSysrepo();
 netConfAgent.subscriberForModelChanges(*module_name);
+netConfAgent.closeSysrepo();
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +94,11 @@ while (true)
     getline(cin,tempComand);
     separateComArg(tempComand,tempArg);
     map<string,function<void()>>::iterator it = my_map.find(tempComand);
-    it->second();
+    if(it != my_map.end())
+    {
+it->second();
+    }
+    
 }
 
   return 0;
