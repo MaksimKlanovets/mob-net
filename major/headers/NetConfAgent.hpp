@@ -24,11 +24,11 @@ public:
     bool initSysrepo();
     bool closeSysrepo();
     // read data get
-    bool fetchData();
-    bool subscriberForModelChanges(const char &module_name);
+    bool fetchData(const char *module_name);
+    bool subscriberForModelChanges(const char *module_name);
     // get noconfig data,cli pointer of function witch set data
     bool registerOperData();
-    bool subscriberForRpc();
+    bool subscriberForRpc(const char *module_name);
     bool notifySysrepo();
     bool changeData();
 
