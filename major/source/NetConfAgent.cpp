@@ -33,21 +33,42 @@ m_Connection = make_shared<sysrepo::Connection>();
 /* start session */
 cout << "starting session" << endl;
 m_Session = make_shared<sysrepo::Session>(m_Connection);
-
+return true;
 }
 
 bool  NetConfAgent::closeSysrepo(){
-/* loop until ctrl-c is pressed / SIGINT is received */
+
+    /* loop until ctrl-c is pressed / SIGINT is received */
          signal(SIGINT, sigint_handler);
         while (!exit_application) {
             sleep(1000);  /* or do some more useful work... */
         }
-
+        
         cout << "Application exit requested, exiting." << endl;
+
+    m_Session->session_stop();
+        
+        return true;
 }
 
-bool fetchData(){
+bool NetConfAgent::fetchData(const char *module_name){
+/* read running config */
+        cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
 
+       char select_xpath[MAX_LEN];
+    try {
+        snprintf(select_xpath, MAX_LEN, "/%s:*//*", module_name);
+
+        auto values = m_Session->get_items(&select_xpath[0]);
+        if (values == nullptr)
+            return false;
+
+        for(unsigned int i = 0; i < values->val_cnt(); i++)
+            cout << values->val(i)->to_string();
+    } catch( const std::exception& e ) {
+        cout << e.what() << endl;
+    }
+    return true;
 }
 
 
@@ -64,8 +85,8 @@ const char *ev_to_str(sr_event_t ev) {
         return "abort";
     }
 }
-//question - how this work and never-end ?
-bool NetConfAgent::subscriberForModelChanges(const char &module_name){
+
+bool NetConfAgent::subscriberForModelChanges(const char *module_name){
 /* subscribe for changes in running config */
 try
 {
@@ -85,13 +106,13 @@ try
                 cout << "\n\n ========== CHANGES: =============================================\n" << endl;
 
                 snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
-
+                //create data
                 auto it = m_Session->get_changes_iter(change_path);
 
                 while (auto change = m_Session->get_change_next(it)) {
                     print_change(change);
                 }
-
+                ///////////////
                 cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
 
             } catch( const std::exception& e ) {
@@ -100,12 +121,10 @@ try
             return SR_ERR_OK;
             
 
-        };     
-       m_Subscribe->module_change_subscribe(&module_name, cb);
+        };   
+      
+       m_Subscribe->module_change_subscribe(module_name, cb);
 
-        /* read running config */
-        cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-        print_current_config(m_Session, &module_name);
         
 }
 catch( const std::exception& e ) {
@@ -117,9 +136,9 @@ catch( const std::exception& e ) {
 }
 bool NetConfAgent::registerOperData(){
 
-}
 
-bool NetConfAgent::subscriberForRpc(){
+}
+bool subscriberForRpc(const char *module_name){
 
 }
 
