@@ -4,13 +4,13 @@
   </target>
   <error-option>rollback-on-error</error-option>
   <config>
-   <users xmlns="ns:mobNetwork">
-     <subscriber>
-	<number>+380643212341</number>
-       <userName>Maks</userName>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+	      <userName>Maks</userName>
+        <number>+380643212341</number>
         <incomingNumber>+7900000000001</incomingNumber>
-       <state>idle</state>
-     </subscriber>
-   </users>
+        <state>idle</state>
+     </subscribers>
+   </core>
   </config>
 </edit-config>

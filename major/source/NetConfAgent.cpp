@@ -1,13 +1,21 @@
 #include "NetConfAgent.hpp"
 
+ #include <signal.h>
+ #include <unistd.h>
+//what is it ?
+volatile int exit_application = 0;
+
+static void
+sigint_handler(int signum)
+{
+    exit_application = 1;
+}
+
 NetConfAgent::NetConfAgent()
 {
-  // m_Session = new unique_ptr<sysrepo::Session>;
-  //m_Session = nullptr;
-  // m_Connection = new unique_ptr<sysrepo::Connection>;
-  //m_Connection = nullptr;
-  // m_Subscribe = new unique_ptr<sysrepo::Subscribe>;
-  //m_Subscribe = nullptr;
+  m_Session = {};
+  m_Connection = {};
+  m_Subscribe = {};
   
 }
 
@@ -28,13 +36,21 @@ m_Session = make_shared<sysrepo::Session>(m_Connection);
 
 }
 
-bool closeSysrepo(){
+bool  NetConfAgent::closeSysrepo(){
+/* loop until ctrl-c is pressed / SIGINT is received */
+         signal(SIGINT, sigint_handler);
+        while (!exit_application) {
+            sleep(1000);  /* or do some more useful work... */
+        }
 
+        cout << "Application exit requested, exiting." << endl;
 }
 
 bool fetchData(){
 
 }
+
+
 
 /* Helper function for printing events. */
 const char *ev_to_str(sr_event_t ev) {
@@ -48,12 +64,12 @@ const char *ev_to_str(sr_event_t ev) {
         return "abort";
     }
 }
-
+//question - how this work and never-end ?
 bool NetConfAgent::subscriberForModelChanges(const char &module_name){
 /* subscribe for changes in running config */
-        m_Subscribe = make_shared<sysrepo::Subscribe>(m_Session);
-        
-        //task --- created m_Subscriber from m_Session!!!!!!!!!!!!!!!!!
+try
+{
+     m_Subscribe = make_shared<sysrepo::Subscribe>(m_Session);
 
         auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
             uint32_t request_id) {
@@ -89,7 +105,15 @@ bool NetConfAgent::subscriberForModelChanges(const char &module_name){
 
         /* read running config */
         cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
+        print_current_config(m_Session, &module_name);
         
+}
+catch( const std::exception& e ) {
+        cout << e.what() << endl;
+        return -1;
+    }
+
+       
 }
 bool NetConfAgent::registerOperData(){
 
