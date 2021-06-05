@@ -38,7 +38,9 @@ int main(int argc, char **argv)
 
 NetConfAgent netConfAgent;
 netConfAgent.initSysrepo();
-netConfAgent.subscriberForModelChanges(*module_name);
+netConfAgent.fetchData(module_name);
+netConfAgent.subscriberForModelChanges(module_name);
+
 netConfAgent.closeSysrepo();
 
 
@@ -88,18 +90,18 @@ cout <<"Exit" <<endl;
 return 0;
 });
 
-while (true)
-{
-    resetData(tempComand,tempArg);
-    getline(cin,tempComand);
-    separateComArg(tempComand,tempArg);
-    map<string,function<void()>>::iterator it = my_map.find(tempComand);
-    if(it != my_map.end())
-    {
-it->second();
-    }
+// while (true)
+// {
+//     resetData(tempComand,tempArg);
+//     getline(cin,tempComand);
+//     separateComArg(tempComand,tempArg);
+//     map<string,function<void()>>::iterator it = my_map.find(tempComand);
+//     if(it != my_map.end())
+//     {
+// it->second();
+//     }
     
-}
+// }
 
   return 0;
 }
