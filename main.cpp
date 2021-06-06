@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "NetConfAgent.hpp"
-
+#include <cstring>
 
 #include "libsysrepocpp/headers/Session.hpp"
 
@@ -28,18 +28,22 @@ int main(int argc, char **argv)
 {
     //////////////////////////////////////////////////////////////
    const char *module_name = "mobile-network";
-  
-        if (argc > 1) {
-            module_name = argv[1];
-        } else {
-            cout << "\nYou can pass the module name to be subscribed as the first argument" << endl;
-        }
 
+    
+   const char *xpath = "/mobile-network:core/subscribers[number='001']";
+
+libyang::S_Data_Node data = {};
 
 NetConfAgent netConfAgent;
 netConfAgent.initSysrepo();
-netConfAgent.fetchData(module_name);
-netConfAgent.subscriberForModelChanges(module_name);
+netConfAgent.fetchData(xpath,&data);
+netConfAgent.subscriberForModelChanges(module_name, xpath);
+
+netConfAgent.registerOperData();
+netConfAgent.subscriberForRpc(module_name);
+netConfAgent.changeData(module_name,xpath, &data);
+
+
 
 netConfAgent.closeSysrepo();
 

@@ -6,11 +6,13 @@
   <config>
    <core xmlns="ns:mobNetwork">
      <subscribers>
-	      <userName>Maks</userName>
-        <number>+380643212341</number>
+        
+        <number>001</number>
         <incomingNumber>+7900000000001</incomingNumber>
         <state>idle</state>
      </subscribers>
    </core>
   </config>
 </edit-config>
+
+
