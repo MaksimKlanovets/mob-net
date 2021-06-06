@@ -21,16 +21,17 @@ public:
 
     friend const char *ev_to_str(sr_event_t ev) ; 
     //initialization sysrepo
-    bool initSysrepo();
+    bool initSysrepo( );
     bool closeSysrepo();
     // read data get
-    bool fetchData(const char *module_name);
-    bool subscriberForModelChanges(const char *module_name);
-    // get noconfig data,cli pointer of function witch set data
+    bool fetchData(const char *xpath,libyang::S_Data_Node *data);
+    bool subscriberForModelChanges(const char *module_name, const char *xpath);
+    // get noconfig data,cli pointer of function witch set data ??????
     bool registerOperData();
+
     bool subscriberForRpc(const char *module_name);
     bool notifySysrepo();
-    bool changeData();
+    bool changeData(const char *module_name,const char *xpath,libyang::S_Data_Node *data);
 
       
     /* Function to print current configuration state.
@@ -42,6 +43,11 @@ print_current_config(sysrepo::S_Session session, const char *module_name);
 static void
 print_change(sysrepo::S_Change change);
 
-  
+static void
+print_node(libyang::S_Data_Node &node);
+
+static const char *
+nodetype2str(LYS_NODE type);
 };
+
 
