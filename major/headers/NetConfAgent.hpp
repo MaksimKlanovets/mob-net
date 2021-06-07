@@ -12,7 +12,6 @@ class NetConfAgent
 {
 private:
     shared_ptr<sysrepo::Session> m_Session;
-    shared_ptr<sysrepo::Subscribe> m_Subscribe;
     shared_ptr<sysrepo::Connection> m_Connection;
     
     
@@ -23,7 +22,6 @@ public:
     friend const char *ev_to_str(sr_event_t ev) ; 
     //initialization sysrepo
     bool initSysrepo( );
-    bool closeSysrepo();
     // read data get
     bool fetchData(const char *xpath,libyang::S_Data_Node *data);
     bool subscriberForModelChanges(const char *module_name);
