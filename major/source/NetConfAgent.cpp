@@ -1,5 +1,6 @@
 #include "NetConfAgent.hpp"
 
+
  #include <signal.h>
  #include <unistd.h>
 //what is it ?
@@ -13,9 +14,9 @@ sigint_handler(int signum)
 
 NetConfAgent::NetConfAgent()
 {
-  m_Session = {};
-  m_Connection = {};
-  m_Subscribe = {};
+//   m_Session = {};
+//   m_Connection = {};
+//   m_Subscribe = {};
   
 }
 
@@ -33,6 +34,8 @@ m_Connection = make_shared<sysrepo::Connection>();
 /* start session */
 cout << "starting session" << endl;
 m_Session = make_shared<sysrepo::Session>(m_Connection);
+
+m_Subscribe = make_shared<sysrepo::Subscribe>(m_Session);
 return true;
 }
 
@@ -89,12 +92,10 @@ const char *ev_to_str(sr_event_t ev) {
     }
 }
 
-bool NetConfAgent::subscriberForModelChanges(const char *module_name, const char *xpath){
+bool NetConfAgent::subscriberForModelChanges(const char *module_name){
 /* subscribe for changes in running config */
 try
 {
-     m_Subscribe = make_shared<sysrepo::Subscribe>(m_Session);
-
         auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
             uint32_t request_id) {
             char change_path[MAX_LEN];
@@ -148,81 +149,87 @@ bool NetConfAgent::registerOperData(){
 }
 bool NetConfAgent::subscriberForRpc(const char *module_name){
 
-    // auto cbVals = [](sysrepo::S_Session session, const char* op_path, const sysrepo::S_Vals input, sr_event_t event, uint32_t request_id, sysrepo::S_Vals_Holder output) {
-    //         cout << "\n ========== RPC CALLED ==========\n" << endl;
+    //  try {
 
-    //         auto out_vals = output->allocate(3);
+    //      printf("Application will make an rpc call in %s\n", module_name);
+      
+    //      auto cbVals = [](sysrepo::S_Session session, const char* op_path, const sysrepo::S_Vals input, sr_event_t event, uint32_t request_id, sysrepo::S_Vals_Holder output) {
+    //          cout << "\n ========== RPC CALLED ==========\n" << endl;
+
+    //          auto out_vals = output->allocate(3);
 
     //         for(size_t n = 0; n < input->val_cnt(); ++n)
-    //             print_value(input->val(n));
+            //    print_value(input->val(n));
+                
+            // out_vals->val(0)->set("/test-examples:activate-software-image/status",
+            //         "The image acmefw-2.3 is being installed.",
+            //         SR_STRING_T);
+            // out_vals->val(1)->set("/test-examples:activate-software-image/version",
+            //         "2.3",
+            //         SR_STRING_T);
+            // out_vals->val(2)->set("/test-examples:activate-software-image/location",
+            //         "/root/",
+            //         SR_STRING_T);
 
-    //         out_vals->val(0)->set("/test-examples:activate-software-image/status",
-    //                 "The image acmefw-2.3 is being installed.",
-    //                 SR_STRING_T);
-    //         out_vals->val(1)->set("/test-examples:activate-software-image/version",
-    //                 "2.3",
-    //                 SR_STRING_T);
-    //         out_vals->val(2)->set("/test-examples:activate-software-image/location",
-    //                 "/root/",
-    //                 SR_STRING_T);
+        //     return SR_ERR_OK;
+        // };
 
-    //         return SR_ERR_OK;
-    //     };
+        // auto cbTree = [] (sysrepo::S_Session session, const char *op_path, const libyang::S_Data_Node input, sr_event_t event,
+        //         uint32_t request_id, libyang::S_Data_Node output) {
+        //     cout << "\n ========== RPC TREE CALLED ==========\n" << endl;
+        //     cout << input->print_mem(LYD_XML, LYP_FORMAT);
 
-    //     auto cbTree = [] (sysrepo::S_Session session, const char *op_path, const libyang::S_Data_Node input, sr_event_t event,
-    //             uint32_t request_id, libyang::S_Data_Node output) {
-    //         cout << "\n ========== RPC TREE CALLED ==========\n" << endl;
-    //         cout << input->print_mem(LYD_XML, LYP_FORMAT);
+        //     libyang::S_Context ctx = session->get_context();
 
-    //         libyang::S_Context ctx = session->get_context();
+        //     output->new_path(ctx, "status", "The image acmefw-2.3 is being installed.", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
+        //     output->new_path(ctx, "version", "2.3", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
+        //     output->new_path(ctx, "location", "/root/", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
 
-    //         output->new_path(ctx, "status", "The image acmefw-2.3 is being installed.", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
-    //         output->new_path(ctx, "version", "2.3", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
-    //         output->new_path(ctx, "location", "/root/", LYD_ANYDATA_CONSTSTRING, LYD_PATH_OPT_OUTPUT);
+        //      return SR_ERR_OK;
+        //  };
 
-    //         return SR_ERR_OK;
-    //     };
+        // cout << "\n ========== SUBSCRIBE TO RPC CALL ==========\n" << endl;
+        
 
-    //     cout << "\n ========== SUBSCRIBE TO RPC CALL ==========\n" << endl;
+        // m_Subscribe->rpc_subscribe(xpath, cbVals, 1);
 
-    //     subscribe->rpc_subscribe("/test-examples:activate-software-image", cbVals, 1);
+        // auto in_vals = std::make_shared<sysrepo::Vals>(2);
 
-    //     auto in_vals = std::make_shared<sysrepo::Vals>(2);
+        // in_vals->val(0)->set("/test-examples:activate-software-image/image-name",
+        //                    "acmefw-2.3",
+        //        SR_STRING_T);
+        //        cout << "t2" << endl;
+        // in_vals->val(1)->set("/test-examples:activate-software-image/location",
+        //                    "/root/",
+        //                    SR_STRING_T);
 
-    //     in_vals->val(0)->set("/test-examples:activate-software-image/image-name",
-    //                        "acmefw-2.3",
-    //            SR_STRING_T);
-    //     in_vals->val(1)->set("/test-examples:activate-software-image/location",
-    //                        "/root/",
-    //                        SR_STRING_T);
+        // cout << "\n ========== START RPC CALL ==========\n" << endl;
+        // auto out_vals = m_Session->rpc_send("/test-examples:activate-software-image", in_vals);
 
-    //     cout << "\n ========== START RPC CALL ==========\n" << endl;
-    //     auto out_vals = sess->rpc_send("/test-examples:activate-software-image", in_vals);
+        // cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
+        // for(size_t n=0; n < out_vals->val_cnt(); ++n)
+        //     print_value(out_vals->val(n));
 
-    //     cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
-    //     for(size_t n=0; n < out_vals->val_cnt(); ++n)
-    //         print_value(out_vals->val(n));
+        // cout << "\n ========== SUBSCRIBE TO RPC TREE CALL ==========\n" << endl;
+        // m_Subscribe->rpc_subscribe_tree("/test-examples:activate-software-image", cbTree, 0, SR_SUBSCR_CTX_REUSE);
 
-    //     cout << "\n ========== SUBSCRIBE TO RPC TREE CALL ==========\n" << endl;
-    //     subscribe->rpc_subscribe_tree("/test-examples:activate-software-image", cbTree, 0, SR_SUBSCR_CTX_REUSE);
+        // libyang::S_Context ctx = m_Connection->get_context();
+        // libyang::S_Module mod = ctx->get_module(module_name);
+        // auto in_trees = std::make_shared<libyang::Data_Node>(ctx, "/test-examples:activate-software-image", nullptr, LYD_ANYDATA_CONSTSTRING, 0);
+        // std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "image-name", "acmefw-2.3"));
+        // std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "location", "/root/"));
 
-    //     libyang::S_Context ctx = conn->get_context();
-    //     libyang::S_Module mod = ctx->get_module(module_name);
-    //     auto in_trees = std::make_shared<libyang::Data_Node>(ctx, "/test-examples:activate-software-image", nullptr, LYD_ANYDATA_CONSTSTRING, 0);
-    //     std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "image-name", "acmefw-2.3"));
-    //     std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "location", "/root/"));
+        // cout << "\n ========== START RPC TREE CALL ==========\n" << endl;
+        // auto out_trees = m_Session->rpc_send(in_trees);
 
-    //     cout << "\n ========== START RPC TREE CALL ==========\n" << endl;
-    //     auto out_trees = sess->rpc_send(in_trees);
-
-    //     cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
-    //     cout << out_trees->print_mem(LYD_XML, LYP_FORMAT);
+        // cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
+        // cout << out_trees->print_mem(LYD_XML, LYP_FORMAT);
 
     //     cout << "\n ========== END PROGRAM ==========\n" << endl;
-    // } catch( const std::exception& e ) {
-    //     cout << e.what() << endl;
-    //     return -1;
-    // }
+    //  } catch( const std::exception& e ) {
+    //      cout << e.what() << endl;
+    //      return -1;
+    //  }
 }
 
 bool NetConfAgent::notifySysrepo(){
@@ -230,56 +237,56 @@ bool NetConfAgent::notifySysrepo(){
 }
 
 bool NetConfAgent::changeData(const char *module_name,const char *xpath, libyang::S_Data_Node *data){
-//  cout << "Application will provide data of " << module_name << endl;
+ cout << "Application will provide data of " << module_name << endl;
 
-// auto cb1 = [] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
-//             uint32_t request_id, libyang::S_Data_Node &parent) {
+auto cb1 = [] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+            uint32_t request_id, libyang::S_Data_Node &parent) {
 
-//             cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
+            cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
+            
+            libyang::S_Context ctx = session->get_context();
+            libyang::S_Module mod = ctx->get_module(module_name);
 
-//             libyang::S_Context ctx = session->get_context();
-//             libyang::S_Module mod = ctx->get_module(module_name);
+            // parent.reset(new libyang::Data_Node(ctx, "/ietf-interfaces:interfaces-state", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
 
-//             parent.reset(new libyang::Data_Node(ctx, "/ietf-interfaces:interfaces-state", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+            // libyang::S_Data_Node ifc(new libyang::Data_Node(parent, mod, "interface"));
+            // libyang::S_Data_Node name(new libyang::Data_Node(ifc, mod, "name", "eth100"));
+            // libyang::S_Data_Node type(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
+            // libyang::S_Data_Node oper_status(new libyang::Data_Node(ifc, mod, "oper-status", "down"));
 
-//             libyang::S_Data_Node ifc(new libyang::Data_Node(parent, mod, "interface"));
-//             libyang::S_Data_Node name(new libyang::Data_Node(ifc, mod, "name", "eth100"));
-//             libyang::S_Data_Node type(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
-//             libyang::S_Data_Node oper_status(new libyang::Data_Node(ifc, mod, "oper-status", "down"));
+            // ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
+            // name.reset(new libyang::Data_Node(ifc, mod, "name", "eth101"));
+            // type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
+            // oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "up"));
 
-//             ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
-//             name.reset(new libyang::Data_Node(ifc, mod, "name", "eth101"));
-//             type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
-//             oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "up"));
+            // ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
+            // name.reset(new libyang::Data_Node(ifc, mod, "name", "eth102"));
+            // type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
+            // oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "dormant"));
 
-//             ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
-//             name.reset(new libyang::Data_Node(ifc, mod, "name", "eth102"));
-//             type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
-//             oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "dormant"));
+            // ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
+            // name.reset(new libyang::Data_Node(ifc, mod, "name", "eth105"));
+            // type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
+            // oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "not-present"));
 
-//             ifc.reset(new libyang::Data_Node(parent, mod, "interface"));
-//             name.reset(new libyang::Data_Node(ifc, mod, "name", "eth105"));
-//             type.reset(new libyang::Data_Node(ifc, mod, "type", "iana-if-type:ethernetCsmacd"));
-//             oper_status.reset(new libyang::Data_Node(ifc, mod, "oper-status", "not-present"));
+            return SR_ERR_OK;
+        };
+        // auto cb2 = [] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+        //     uint32_t request_id, libyang::S_Data_Node &parent) {
+        //     cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
 
-//             return SR_ERR_OK;
-//         };
-//         auto cb2 = [] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
-//             uint32_t request_id, libyang::S_Data_Node &parent) {
-//             cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
+        //     libyang::S_Context ctx = session->get_context();
+        //     libyang::S_Module mod = ctx->get_module(module_name);
 
-//             libyang::S_Context ctx = session->get_context();
-//             libyang::S_Module mod = ctx->get_module(module_name);
+        //     auto stats = std::make_shared<libyang::Data_Node>(parent, mod, "statistics");
+        //     auto dis_time = std::make_shared<libyang::Data_Node>(stats, mod, "discontinuity-time", "2019-01-01T00:00:00Z");
+        //     auto in_oct = std::make_shared<libyang::Data_Node>(stats, mod, "in-octets", "22");
 
-//             auto stats = std::make_shared<libyang::Data_Node>(parent, mod, "statistics");
-//             auto dis_time = std::make_shared<libyang::Data_Node>(stats, mod, "discontinuity-time", "2019-01-01T00:00:00Z");
-//             auto in_oct = std::make_shared<libyang::Data_Node>(stats, mod, "in-octets", "22");
+        //     return SR_ERR_OK;
+        // };
 
-//             return SR_ERR_OK;
-//         };
-
-//         m_Subscribe->oper_get_items_subscribe(module_name, cb1, "/ietf-interfaces:interfaces-state");
-//         m_Subscribe->oper_get_items_subscribe(module_name, cb2, "/ietf-interfaces:interfaces-state/interface/statistics");
+        m_Subscribe->oper_get_items_subscribe(module_name, cb1, "/mobile-network:core/subscribers[number='001']");
+       // m_Subscribe->oper_get_items_subscribe(module_name, cb2, "/ietf-interfaces:interfaces-state/interface/statistics");
 }
 
 void
@@ -421,3 +428,66 @@ NetConfAgent::nodetype2str(LYS_NODE type)
     return NULL;
 }
 
+void
+NetConfAgent::print_value(sysrepo::S_Val value)
+{
+    cout << value->xpath();
+    cout << " ";
+    switch (value->type()) {
+    case SR_CONTAINER_T:
+    case SR_CONTAINER_PRESENCE_T:
+        cout << "(container)" << endl;
+        break;
+    case SR_LIST_T:
+        cout << "(list instance)" << endl;
+        break;
+    case SR_STRING_T:
+        cout << "= " << value->data()->get_string() << endl;;
+        break;
+    case SR_BOOL_T:
+    if (value->data()->get_bool())
+            cout << "= true" << endl;
+    else
+            cout << "= false" << endl;
+        break;
+    case SR_ENUM_T:
+        cout << "= " << value->data()->get_enum() << endl;;
+        break;
+    case SR_UINT8_T:
+        cout << "= " << unsigned(value->data()->get_uint8()) << endl;
+        break;
+    case SR_UINT16_T:
+        cout << "= " << unsigned(value->data()->get_uint16()) << endl;
+        break;
+    case SR_UINT32_T:
+        cout << "= " << unsigned(value->data()->get_uint32()) << endl;
+        break;
+    case SR_UINT64_T:
+        cout << "= " << unsigned(value->data()->get_uint64()) << endl;
+        break;
+    case SR_INT8_T:
+        cout << "= " << value->data()->get_int8() << endl;
+        break;
+    case SR_INT16_T:
+        cout << "= " << value->data()->get_int16() << endl;
+        break;
+    case SR_INT32_T:
+        cout << "= " << value->data()->get_int32() << endl;
+        break;
+    case SR_INT64_T:
+        cout << "= " << value->data()->get_int64() << endl;
+        break;
+     case SR_IDENTITYREF_T:
+        cout << "= " << value->data()->get_identityref() << endl;
+        break;
+    case SR_BITS_T:
+        cout << "= " << value->data()->get_bits() << endl;
+        break;
+    case SR_BINARY_T:
+        cout << "= " << value->data()->get_binary() << endl;
+        break;
+    default:
+        cout << "(unprintable)" << endl;
+    }
+    return;
+}
