@@ -36,8 +36,8 @@ libyang::S_Data_Node data = {};
 
 NetConfAgent netConfAgent;
 netConfAgent.initSysrepo();
-netConfAgent.fetchData(xpath,&data);
-netConfAgent.subscriberForModelChanges(module_name, xpath);
+//netConfAgent.fetchData(xpath,&data);
+//netConfAgent.subscriberForModelChanges(module_name);
 
 netConfAgent.registerOperData();
 netConfAgent.subscriberForRpc(module_name);

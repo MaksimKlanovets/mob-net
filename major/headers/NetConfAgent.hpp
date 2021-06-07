@@ -1,6 +1,7 @@
 
 #include "libsysrepocpp/headers/Session.hpp"
 
+
 using namespace std;
 
 #define MAX_LEN 100
@@ -25,7 +26,7 @@ public:
     bool closeSysrepo();
     // read data get
     bool fetchData(const char *xpath,libyang::S_Data_Node *data);
-    bool subscriberForModelChanges(const char *module_name, const char *xpath);
+    bool subscriberForModelChanges(const char *module_name);
     // get noconfig data,cli pointer of function witch set data ??????
     bool registerOperData();
 
@@ -48,6 +49,9 @@ print_node(libyang::S_Data_Node &node);
 
 static const char *
 nodetype2str(LYS_NODE type);
+///rpc
+void
+print_value(sysrepo::S_Val value);
 };
 
 
