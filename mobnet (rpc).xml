@@ -8,11 +8,26 @@
      <subscribers>
         
         <number>001</number>
-        <incomingNumber>+7900000000001</incomingNumber>
+        <incomingNumber>+790-001</incomingNumber>
         <state>idle</state>
      </subscribers>
    </core>
   </config>
 </edit-config>
 
-
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+        
+        <number>002</number>
+        <incomingNumber>+790-002</incomingNumber>
+        <state>idle</state>
+     </subscribers>
+   </core>
+  </config>
+</edit-config>
