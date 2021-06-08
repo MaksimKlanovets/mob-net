@@ -33,20 +33,22 @@ bool NetConfAgent::initSysrepo( )
     return true;
 }
 
-bool NetConfAgent::fetchData(const char *xpath,libyang::S_Data_Node *data)
+bool NetConfAgent::fetchData(const char *xpath,libyang::S_Data_Node *data, const string &key)
 {
+     cout << "called fetchData" << endl;
+
+    string tPath =(string) xpath;
+    string pref = "[number=\'" + key +"']/state";
+    tPath+=pref;
 /* read running config */
-    cout << "called fetchData" << endl;
-    try 
-    {
-        *data = m_Session->get_subtree("/mobile-network:core/subscribers[number='001']/state");
-        print_node(*data);
-    } 
-    catch( const std::exception& e ) 
-    {
-        cout << e.what() << endl;
-    }
-    
+//is it correct a verify ?
+if (m_Session->get_subtree(tPath.c_str())!= nullptr)
+{
+    cout << "noda is empty " <<endl;
+    *data = m_Session->get_subtree(tPath.c_str());
+    print_node(*data);
+}
+
     return true;
 }
 
@@ -70,65 +72,47 @@ const char *ev_to_str(sr_event_t ev)
 bool NetConfAgent::subscriberForModelChanges(const char *module_name)
 {
 /* subscribe for changes in running config */
-       auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
+     auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
 
-try
-{
-        auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
-            uint32_t request_id) {
+    auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
+        uint32_t request_id) 
+        {
             char change_path[MAX_LEN];
-
-            try 
+            cout << "\n\n ========== Notification " << ev_to_str(event) << " =============================================";
+            if (SR_EV_CHANGE == event) 
             {
-                cout << "\n\n ========== Notification " << ev_to_str(event) << " =============================================";
-                if (SR_EV_CHANGE == event) {
-                    cout << "\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n" << endl;
-                    print_current_config(m_Session, module_name);
-                }
-
-                cout << "\n\n ========== CHANGES: =============================================\n" << endl;
-
-                snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
-                //create data
-                auto it = m_Session->get_changes_iter(change_path);
-
-                while (auto change = m_Session->get_change_next(it)) 
-                {
-                    print_change(change);
-                }
-                ///////////////
-                cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
-
-            } 
-            catch( const std::exception& e ) 
-            {
-                cout << e.what() << endl;
+                cout << "\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n" << endl;
+                print_current_config(m_Session, module_name);
             }
-            return SR_ERR_OK;
-            
 
+            cout << "\n\n ========== CHANGES: =============================================\n" << endl;
+
+            snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
+            //create data
+            auto it = m_Session->get_changes_iter(change_path);
+
+            while (auto change = m_Session->get_change_next(it)) 
+            {
+                print_change(change);
+            }
+            cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
+
+         return SR_ERR_OK;
         };   
       
-       m_Subscribe->module_change_subscribe(module_name, cb);
+    m_Subscribe->module_change_subscribe(module_name, cb);
 
-        /* read running config */
-        cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-        print_current_config(m_Session, module_name);
-}
-catch( const std::exception& e ) 
-{
-        cout << e.what() << endl;
-        return -1;
-}
+     /* read running config */
+    cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
+    print_current_config(m_Session, module_name);
 
-     /* loop until ctrl-c is pressed / SIGINT is received */
-         signal(SIGINT, sigint_handler);
-while (!exit_application) 
-{
-    sleep(1000);  /* or do some more useful work... */
-}
-        
-        cout << "Application exit requested, exiting." << endl;  
+    /* loop until ctrl-c is pressed / SIGINT is received */
+        // signal(SIGINT, sigint_handler);
+        // while (!exit_application) {
+        //     sleep(1000);  /* or do some more useful work... */
+        // }
+
+  
 }
 
 
@@ -141,14 +125,24 @@ bool NetConfAgent::subscriberForRpc(const char *module_name){
    
 }
 
-bool NetConfAgent::notifySysrepo(){
+bool NetConfAgent::notifySysrepo()
+{
 
 }
 
-bool NetConfAgent::changeData(const char *module_name,const char *xpath, libyang::S_Data_Node *data){
-//set_item
-//set_user
-//aply_changes
+bool NetConfAgent::changeData(const char *xpath, libyang::S_Data_Node *data,const string &value, const string &key)
+{
+    cout << "called changeData" <<endl;
+    //set_item
+    //set_user
+    //aply_changes
+
+    string tPath =(string) xpath;
+    string pref = "[number=\'" + key +"']/state";
+    tPath+=pref;
+    //will it create a node? (second call to fetch is not empty already)
+    m_Session->set_item_str(tPath.c_str(),value.c_str());
+    return true;
 }
 
 void
@@ -170,23 +164,28 @@ NetConfAgent::print_current_config(sysrepo::S_Session session, const char *modul
 }
 
 void
-NetConfAgent::print_change(sysrepo::S_Change change) {
+NetConfAgent::print_change(sysrepo::S_Change change) 
+{
     cout << endl;
-    switch(change->oper()) {
+    switch(change->oper()) 
+    {
     case SR_OP_CREATED:
-        if (nullptr != change->new_val()) {
+        if (nullptr != change->new_val()) 
+        {
            cout <<"CREATED: ";
            cout << change->new_val()->to_string();
         }
         break;
     case SR_OP_DELETED:
-        if (nullptr != change->old_val()) {
+        if (nullptr != change->old_val()) 
+        {
            cout << "DELETED: ";
            cout << change->old_val()->to_string();
         }
     break;
     case SR_OP_MODIFIED:
-        if (nullptr != change->old_val() && nullptr != change->new_val()) {
+        if (nullptr != change->old_val() && nullptr != change->new_val()) 
+        {
            cout << "MODIFIED: ";
            cout << "old value ";
            cout << change->old_val()->to_string();
@@ -195,12 +194,14 @@ NetConfAgent::print_change(sysrepo::S_Change change) {
         }
     break;
     case SR_OP_MOVED:
-        if (nullptr != change->old_val() && nullptr != change->new_val()) {
+        if (nullptr != change->old_val() && nullptr != change->new_val()) 
+        {
            cout << "MOVED: ";
            cout << change->new_val()->xpath();
            cout << " after ";
            cout << change->old_val()->xpath();
-        } else if (nullptr != change->new_val()) {
+        } else if (nullptr != change->new_val()) 
+        {
            cout << "MOVED: ";
            cout << change->new_val()->xpath();
            cout << " first";
@@ -219,7 +220,8 @@ NetConfAgent::print_node(libyang::S_Data_Node &node)
     cout << '\t' << "Default: " << (node->dflt() ? "yes" : "no") << endl;
 
     /* type-specific print */
-    switch (schema->nodetype()) {
+    switch (schema->nodetype()) 
+    {
     case LYS_CONTAINER:
     {
         libyang::Schema_Node_Container scont(schema);
@@ -248,7 +250,8 @@ NetConfAgent::print_node(libyang::S_Data_Node &node)
         libyang::Schema_Node_List slist(schema);
 
         cout << '\t' << "Keys:";
-        for (libyang::S_Schema_Node_Leaf &key : slist.keys()) {
+        for (libyang::S_Schema_Node_Leaf &key : slist.keys()) 
+        {
             cout << ' ' << key->name();
         }
         cout << endl;
@@ -264,7 +267,8 @@ NetConfAgent::print_node(libyang::S_Data_Node &node)
 const char *
 NetConfAgent::nodetype2str(LYS_NODE type)
 {
-    switch (type) {
+    switch (type) 
+    {
     case LYS_CONTAINER:
         return "container";
     case LYS_LEAF:
@@ -290,66 +294,4 @@ NetConfAgent::nodetype2str(LYS_NODE type)
     return NULL;
 }
 
-void
-NetConfAgent::print_value(sysrepo::S_Val value)
-{
-    cout << value->xpath();
-    cout << " ";
-    switch (value->type()) {
-    case SR_CONTAINER_T:
-    case SR_CONTAINER_PRESENCE_T:
-        cout << "(container)" << endl;
-        break;
-    case SR_LIST_T:
-        cout << "(list instance)" << endl;
-        break;
-    case SR_STRING_T:
-        cout << "= " << value->data()->get_string() << endl;;
-        break;
-    case SR_BOOL_T:
-    if (value->data()->get_bool())
-            cout << "= true" << endl;
-    else
-            cout << "= false" << endl;
-        break;
-    case SR_ENUM_T:
-        cout << "= " << value->data()->get_enum() << endl;;
-        break;
-    case SR_UINT8_T:
-        cout << "= " << unsigned(value->data()->get_uint8()) << endl;
-        break;
-    case SR_UINT16_T:
-        cout << "= " << unsigned(value->data()->get_uint16()) << endl;
-        break;
-    case SR_UINT32_T:
-        cout << "= " << unsigned(value->data()->get_uint32()) << endl;
-        break;
-    case SR_UINT64_T:
-        cout << "= " << unsigned(value->data()->get_uint64()) << endl;
-        break;
-    case SR_INT8_T:
-        cout << "= " << value->data()->get_int8() << endl;
-        break;
-    case SR_INT16_T:
-        cout << "= " << value->data()->get_int16() << endl;
-        break;
-    case SR_INT32_T:
-        cout << "= " << value->data()->get_int32() << endl;
-        break;
-    case SR_INT64_T:
-        cout << "= " << value->data()->get_int64() << endl;
-        break;
-     case SR_IDENTITYREF_T:
-        cout << "= " << value->data()->get_identityref() << endl;
-        break;
-    case SR_BITS_T:
-        cout << "= " << value->data()->get_bits() << endl;
-        break;
-    case SR_BINARY_T:
-        cout << "= " << value->data()->get_binary() << endl;
-        break;
-    default:
-        cout << "(unprintable)" << endl;
-    }
-    return;
-}
+

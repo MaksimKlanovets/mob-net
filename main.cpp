@@ -27,25 +27,28 @@ bool cNoArg(const string &com, const string &arg);
 int main(int argc, char **argv)
 {
     //////////////////////////////////////////////////////////////
-   const char *module_name = "mobile-network";
+const char *module_name = "mobile-network";
 
-    
-   const char *xpath = "/mobile-network:core/subscribers[number='001']";
+const char *xpath = "/mobile-network:core/subscribers";
+///////////////test data/////////////////
+string key = "001";
+string status = "busy"; 
 
 libyang::S_Data_Node data = {};
+////////////////////////////////////////
 
 NetConfAgent netConfAgent;
+
 netConfAgent.initSysrepo();
-netConfAgent.fetchData(xpath,&data);
 netConfAgent.subscriberForModelChanges(module_name);
+netConfAgent.fetchData(xpath,&data,key);
+netConfAgent.changeData(xpath, &data,status,key);
+netConfAgent.fetchData(xpath,&data,key);
 
-netConfAgent.registerOperData();
 netConfAgent.subscriberForRpc(module_name);
-netConfAgent.changeData(module_name,xpath, &data);
 
-
-
-
+int stop;
+cin >>stop;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 string tempComand {};
