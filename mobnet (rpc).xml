@@ -6,7 +6,6 @@
   <config>
    <core xmlns="ns:mobNetwork">
      <subscribers>
-        
         <number>001</number>
         <incomingNumber>+790-001</incomingNumber>
         <state>idle</state>
