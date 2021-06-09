@@ -1,9 +1,8 @@
 #include "NetConfAgent.hpp"
 
-
  #include <signal.h>
  #include <unistd.h>
-//what is the type?
+
 volatile int exit_application = 0;
 
 static void
@@ -22,14 +21,21 @@ NetConfAgent::~NetConfAgent()
 
 bool NetConfAgent::initSysrepo( )
 {
-    /* connect to sysrepo */
-    cout << "connecting to sysrepo" <<endl;
-    m_Connection = make_shared<sysrepo::Connection>();
+    try
+    {
+        /* connect to sysrepo */
+        cout << "connecting to sysrepo" <<endl;
+        m_Connection = make_shared<sysrepo::Connection>();
 
-    /* start session */
-    cout << "starting session" << endl;
-    m_Session = make_shared<sysrepo::Session>(m_Connection);
-
+        /* start session */
+        cout << "starting session" << endl;
+        m_Session = make_shared<sysrepo::Session>(m_Connection);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
     return true;
 }
 
@@ -37,67 +43,28 @@ bool NetConfAgent::fetchData(const char *xpath,libyang::S_Data_Node *data, const
 {
      cout << "called fetchData" << endl;
 
-    string tPath =(string) xpath;
-    string pref = "[number=\'" + key +"']/state";
-    tPath+=pref;
-/* read running config */
-//is it correct a verify ?
-if (m_Session->get_subtree(tPath.c_str())!= nullptr)
-{
-    cout << "noda is empty " <<endl;
-    *data = m_Session->get_subtree(tPath.c_str());
-    print_node(*data);
-}
-
-    return true;
-}
-
-
-
-/* Helper function for printing events. */
-const char *ev_to_str(sr_event_t ev) 
-{
-    switch (ev) 
+    /* read running config */
+    if (m_Session->get_subtree(xpath))
     {
-        case SR_EV_CHANGE:
-            return "change";
-        case SR_EV_DONE:
-            return "done";
-        case SR_EV_ABORT:
-            default:
-        return "abort";
+        *data = m_Session->get_subtree(xpath);
+        print_node(*data);
+        return true;
     }
+    cout << "noda is empty " <<endl;
+
+    return false;
 }
 
 bool NetConfAgent::subscriberForModelChanges(const char *module_name)
 {
 /* subscribe for changes in running config */
-     auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
+    auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
 
     auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
         uint32_t request_id) 
         {
-            char change_path[MAX_LEN];
-            cout << "\n\n ========== Notification " << ev_to_str(event) << " =============================================";
-            if (SR_EV_CHANGE == event) 
-            {
-                cout << "\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n" << endl;
-                print_current_config(m_Session, module_name);
-            }
-
-            cout << "\n\n ========== CHANGES: =============================================\n" << endl;
-
-            snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
-            //create data
-            auto it = m_Session->get_changes_iter(change_path);
-
-            while (auto change = m_Session->get_change_next(it)) 
-            {
-                print_change(change);
-            }
-            cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
-
-         return SR_ERR_OK;
+            cout<< "called subscribers for model changes cb" << endl;
+            return SR_ERR_OK;
         };   
       
     m_Subscribe->module_change_subscribe(module_name, cb);
@@ -106,42 +73,52 @@ bool NetConfAgent::subscriberForModelChanges(const char *module_name)
     cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
     print_current_config(m_Session, module_name);
 
+}
+
+
+bool NetConfAgent::registerOperData( const char *module_name, const string *xpath,map<string,string>*userName)
+{
+    map<string,string>::iterator it = userName->find(*xpath);
+    cout << "Application will provide data of " << module_name << endl;
+    auto subscribe = std::make_shared<sysrepo::Subscribe>(m_Session);
+        
+    auto cb = [it] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+        uint32_t request_id, libyang::S_Data_Node &parent) 
+    {
+        cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
+        //it's index of leef for new noconfig data
+        string pathNewSubTree =it->first+  "/userName";
+    
+        cout << it->first << it->second << endl;
+        libyang::S_Context ctx = session->get_context();
+        libyang::S_Module mod = ctx->get_module(module_name);
+        parent->new_path(ctx, pathNewSubTree.c_str(), it->second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
+              
+        return SR_ERR_OK;
+    };
+
+     subscribe->oper_get_items_subscribe(module_name, cb, xpath->c_str());
+
     /* loop until ctrl-c is pressed / SIGINT is received */
-        // signal(SIGINT, sigint_handler);
-        // while (!exit_application) {
-        //     sleep(1000);  /* or do some more useful work... */
-        // }
-
-  
+    // signal(SIGINT, sigint_handler);
+    // while (!exit_application) {
+    //     sleep(1000);  /* or do some more useful work... */
+    // }
 }
-
-
-bool NetConfAgent::registerOperData(){
-
-   
-
-}
-bool NetConfAgent::subscriberForRpc(const char *module_name){
-   
+bool NetConfAgent::subscriberForRpc(const char *module_name)
+{
 }
 
 bool NetConfAgent::notifySysrepo()
 {
-
+//cli subscriber
 }
 
-bool NetConfAgent::changeData(const char *xpath, libyang::S_Data_Node *data,const string &value, const string &key)
+bool NetConfAgent::changeData(const char *xpath,const string &value)
 {
     cout << "called changeData" <<endl;
-    //set_item
-    //set_user
-    //aply_changes
-
-    string tPath =(string) xpath;
-    string pref = "[number=\'" + key +"']/state";
-    tPath+=pref;
-    //will it create a node? (second call to fetch is not empty already)
-    m_Session->set_item_str(tPath.c_str(),value.c_str());
+    m_Session->set_item_str(xpath,value.c_str());
+    
     return true;
 }
 

@@ -10,7 +10,6 @@
 
 using namespace std;
 
-
 //erase temp comands
 void resetData(string &str1,string &str2);
 //pring list of commmands
@@ -26,24 +25,29 @@ bool cNoArg(const string &com, const string &arg);
 
 int main(int argc, char **argv)
 {
-    //////////////////////////////////////////////////////////////
 const char *module_name = "mobile-network";
 
 const char *xpath = "/mobile-network:core/subscribers";
-///////////////test data/////////////////
+///////////////test data///////////////////////////////////////////
 string key = "001";
-string status = "busy"; 
+string status = "active"; //userName (noconfig),number(key), incomingNumber,state(mandatory)
 
 libyang::S_Data_Node data = {};
-////////////////////////////////////////
+map<string,string>userName;
+string xpathOperdat= "/mobile-network:core/subscribers[number = '001']";
+userName.emplace(make_pair(xpathOperdat,"RegisterOperData"));
+
+///////////////////////////////////////////////////////////////////
 
 NetConfAgent netConfAgent;
 
 netConfAgent.initSysrepo();
 netConfAgent.subscriberForModelChanges(module_name);
-netConfAgent.fetchData(xpath,&data,key);
-netConfAgent.changeData(xpath, &data,status,key);
-netConfAgent.fetchData(xpath,&data,key);
+netConfAgent.fetchData("/mobile-network:core/subscribers[number = '001']/state",&data,key);
+netConfAgent.registerOperData(module_name,&xpathOperdat,&userName);
+//netConfAgent.fetchData(xpath,&data,key);
+netConfAgent.changeData("/mobile-network:core/subscribers[number = '001']/state", status);
+netConfAgent.fetchData("/mobile-network:core/subscribers[number = '001']/state",&data,key);
 
 netConfAgent.subscriberForRpc(module_name);
 
@@ -61,39 +65,51 @@ const vector<string> m_com{"register","unregister","call","name",
 
 map<string,function<void()>> my_map;
  
-my_map.emplace("help", [&m_com]() { listCommands(m_com); });
-my_map.emplace("register",[&tempComand,&tempArg,&isReg](){
+my_map.emplace("help", [&m_com]() 
+{ 
+    listCommands(m_com); 
+});
+my_map.emplace("register",[&tempComand,&tempArg,&isReg]()
+{
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
        isReg = true;
     }
-    else if (isReg){
-    cout << "Only one registration" << endl;
+    else if (isReg)
+    {
+        cout << "Only one registration" << endl;
     }
 });
-my_map.emplace("unregister",[&tempComand,&tempArg,&isReg](){
+my_map.emplace("unregister",[&tempComand,&tempArg,&isReg]()
+{
     cNoArg(tempComand,tempArg);
     isReg = false;
 });
-my_map.emplace("call", [&tempComand,&tempArg]() {
+my_map.emplace("call", [&tempComand,&tempArg]() 
+{
     cMustArg(tempComand,tempArg);
- });
-my_map.emplace("name", [&tempComand,&tempArg]() {
+});
+my_map.emplace("name", [&tempComand,&tempArg]() 
+{
     cMustArg(tempComand,tempArg);
- });
-my_map.emplace("answer", [&tempComand,&tempArg]() { 
+});
+my_map.emplace("answer", [&tempComand,&tempArg]() 
+{ 
     cNoArg(tempComand,tempArg);
 });
-my_map.emplace("reject", [&tempComand,&tempArg]() { 
+my_map.emplace("reject", [&tempComand,&tempArg]() 
+{ 
     cNoArg(tempComand,tempArg);
 });
-my_map.emplace("callEnd", [&tempComand,&tempArg]() { 
+my_map.emplace("callEnd", [&tempComand,&tempArg]() 
+{ 
     cNoArg(tempComand,tempArg);
 });
-my_map.emplace("exit", []() { 
+my_map.emplace("exit", []() 
+{ 
     //can call isReg
-cout <<"Exit" <<endl;
-return 0;
+    cout <<"Exit" <<endl;
+    return 0;
 });
 
 // while (true)
