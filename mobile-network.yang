@@ -39,6 +39,13 @@ container core
         
     }
 }
-
+  notification test-notif {
+    leaf val1 {
+      type string;
+    }
+    leaf val2 {
+      type string;
+    }
+  }
    
 }
