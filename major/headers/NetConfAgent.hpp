@@ -19,12 +19,13 @@ public:
     //write data from path
     bool fetchData(const char *xpath,libyang::S_Data_Node *data,const string &key);
     //subcriber for model Changes 
-    bool subscriberForModelChanges(const char *module_name);
+    bool subscriberForModelChanges(const string *module_name);
     // set noconfig data, call back for them 
-    bool registerOperData( const char *module_name,const string *xpath, map<string,string>*userName);
+    bool registerOperData( const string *module_name,const string *xpath, map<string,string>*userName);
 
-    bool subscriberForRpc(const char *module_name);//xpath/
-    bool notifySysrepo();
+    bool subscriberForRpc(const char *module_name);
+    //sent some notif 
+    bool notifySysrepo(const string *module_name);
     //change data for a given path
     bool changeData(const char *xpath,const string &value);
 
@@ -38,6 +39,8 @@ void print_change(sysrepo::S_Change change);
 void print_node(libyang::S_Data_Node &node);
 //helper function for print type 
 const char * nodetype2str(LYS_NODE type);
+
+void print_value(sysrepo::S_Val value);
 };
 
 
