@@ -55,7 +55,7 @@ bool NetConfAgent::fetchData(const char *xpath,libyang::S_Data_Node *data, const
     return false;
 }
 
-bool NetConfAgent::subscriberForModelChanges(const char *module_name)
+bool NetConfAgent::subscriberForModelChanges(const string *module_name)
 {
 /* subscribe for changes in running config */
     auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
@@ -67,19 +67,19 @@ bool NetConfAgent::subscriberForModelChanges(const char *module_name)
             return SR_ERR_OK;
         };   
       
-    m_Subscribe->module_change_subscribe(module_name, cb);
+    m_Subscribe->module_change_subscribe(module_name->c_str(), cb);
 
      /* read running config */
     cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-    print_current_config(m_Session, module_name);
-
+    print_current_config(m_Session, module_name->c_str());
+    
 }
 
 
-bool NetConfAgent::registerOperData( const char *module_name, const string *xpath,map<string,string>*userName)
+bool NetConfAgent::registerOperData( const string *module_name, const string *xpath,map<string,string>*userName)
 {
     map<string,string>::iterator it = userName->find(*xpath);
-    cout << "Application will provide data of " << module_name << endl;
+    cout << "Application will provide data of " << *module_name << endl;
     auto subscribe = std::make_shared<sysrepo::Subscribe>(m_Session);
         
     auto cb = [it] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
@@ -97,7 +97,7 @@ bool NetConfAgent::registerOperData( const char *module_name, const string *xpat
         return SR_ERR_OK;
     };
 
-     subscribe->oper_get_items_subscribe(module_name, cb, xpath->c_str());
+     subscribe->oper_get_items_subscribe(module_name->c_str(), cb, xpath->c_str());
 
     /* loop until ctrl-c is pressed / SIGINT is received */
     // signal(SIGINT, sigint_handler);
@@ -109,9 +109,27 @@ bool NetConfAgent::subscriberForRpc(const char *module_name)
 {
 }
 
-bool NetConfAgent::notifySysrepo()
+bool NetConfAgent::notifySysrepo(const string *module_name)
 {
-//cli subscriber
+    try 
+    {
+
+         libyang::S_Context ctx = m_Connection->get_context();
+         libyang::S_Module mod = ctx->get_module(module_name->c_str());
+         auto in_trees = std::make_shared<libyang::Data_Node>(ctx, "/mobile-network:test-notif", nullptr, LYD_ANYDATA_CONSTSTRING, 0);
+         std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val1", "some-value"));
+         std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val2", "some-other-value"));
+
+         cout << "\n ========== START NOTIF TREE SEND ==========\n" << endl;
+        m_Session->event_notif_send(in_trees);
+
+        cout << "\n ========== END PROGRAM NOTIF==========\n" << endl;
+    } 
+    catch( const std::exception& e )
+    {
+        cout << e.what() << endl;
+        return -1;
+    }
 }
 
 bool NetConfAgent::changeData(const char *xpath,const string &value)
@@ -271,4 +289,65 @@ NetConfAgent::nodetype2str(LYS_NODE type)
     return NULL;
 }
 
-
+void NetConfAgent::print_value(sysrepo::S_Val value)
+{
+    cout << value->xpath();
+    cout << " ";
+    switch (value->type()) {
+    case SR_CONTAINER_T:
+    case SR_CONTAINER_PRESENCE_T:
+        cout << "(container)" << endl;
+        break;
+    case SR_LIST_T:
+        cout << "(list instance)" << endl;
+        break;
+    case SR_STRING_T:
+        cout << "= " << value->data()->get_string() << endl;;
+        break;
+    case SR_BOOL_T:
+    if (value->data()->get_bool())
+            cout << "= true" << endl;
+    else
+            cout << "= false" << endl;
+        break;
+    case SR_ENUM_T:
+        cout << "= " << value->data()->get_enum() << endl;;
+        break;
+    case SR_UINT8_T:
+        cout << "= " << unsigned(value->data()->get_uint8()) << endl;
+        break;
+    case SR_UINT16_T:
+        cout << "= " << unsigned(value->data()->get_uint16()) << endl;
+        break;
+    case SR_UINT32_T:
+        cout << "= " << unsigned(value->data()->get_uint32()) << endl;
+        break;
+    case SR_UINT64_T:
+        cout << "= " << unsigned(value->data()->get_uint64()) << endl;
+        break;
+    case SR_INT8_T:
+        cout << "= " << value->data()->get_int8() << endl;
+        break;
+    case SR_INT16_T:
+        cout << "= " << value->data()->get_int16() << endl;
+        break;
+    case SR_INT32_T:
+        cout << "= " << value->data()->get_int32() << endl;
+        break;
+    case SR_INT64_T:
+        cout << "= " << value->data()->get_int64() << endl;
+        break;
+     case SR_IDENTITYREF_T:
+        cout << "= " << value->data()->get_identityref() << endl;
+        break;
+    case SR_BITS_T:
+        cout << "= " << value->data()->get_bits() << endl;
+        break;
+    case SR_BINARY_T:
+        cout << "= " << value->data()->get_binary() << endl;
+        break;
+    default:
+        cout << "(unprintable)" << endl;
+    }
+    return;
+}

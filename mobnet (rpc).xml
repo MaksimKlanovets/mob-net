@@ -14,6 +14,20 @@
   </config>
 </edit-config>
 
+
+
+    <notification
+         xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+         <eventTime>2007-09-01T10:00:00Z</eventTime>
+       <test-notif xmlns="ns:mobNetwork">
+         <val1>value-one</val1>
+         <val2>value-two</val2>
+       </test-notif>
+     </notification>
+
+
+
+
 <edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
   <target>
     <running/>
