@@ -1,9 +1,10 @@
 
 #include "libsysrepocpp/headers/Session.hpp"
-
 using namespace std;
-
+//data for test function NetConfAgent::print_current_config
 #define MAX_LEN 100
+namespace ns_NetConf
+{
 
 class NetConfAgent
 {
@@ -17,7 +18,7 @@ public:
     //initialization sysrepo
     bool initSysrepo( );
     //write data from path
-    bool fetchData(const char *xpath,libyang::S_Data_Node *data,const string &key);
+    bool fetchData(const char *xpath, string &data,const string &key);
     //subcriber for model Changes 
     bool subscriberForModelChanges(const string *module_name);
     // set noconfig data, call back for them 
@@ -42,5 +43,12 @@ const char * nodetype2str(LYS_NODE type);
 static
 void print_value(sysrepo::S_Val value);
 };
+
+}
+
+
+
+
+
 
 
