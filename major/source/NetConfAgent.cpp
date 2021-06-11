@@ -11,6 +11,10 @@ sigint_handler(int signum)
     exit_application = 1;
 }
 
+namespace ns_NetConf
+{
+  
+
 NetConfAgent::NetConfAgent()
 {
 }
@@ -39,20 +43,23 @@ bool NetConfAgent::initSysrepo( )
     return true;
 }
 
-bool NetConfAgent::fetchData(const char *xpath,libyang::S_Data_Node *data, const string &key)
+bool NetConfAgent::fetchData(const char *xpath, string &data, const string &key)
 {
      cout << "called fetchData" << endl;
+     
 
-    /* read running config */
-    if (m_Session->get_subtree(xpath))
-    {
-        *data = m_Session->get_subtree(xpath);
-        print_node(*data);
-        return true;
-    }
-    cout << "noda is empty " <<endl;
+        
+              auto values = m_Session->get_items(xpath);
+        if (values == nullptr)
+        {
+             cout << "noda is empty " <<endl;
+             return 0;
+        }
+        data = values->val(0)->val_to_string();
+        cout << data << endl;
+           
 
-    return false;
+    return true;
 }
 
 bool NetConfAgent::subscriberForModelChanges(const string *module_name)
@@ -387,4 +394,6 @@ void NetConfAgent::print_value(sysrepo::S_Val value)
         cout << "(unprintable)" << endl;
     }
     return;
+}
+  
 }
