@@ -105,8 +105,45 @@ bool NetConfAgent::registerOperData( const string *module_name, const string *xp
     //     sleep(1000);  /* or do some more useful work... */
     // }
 }
-bool NetConfAgent::subscriberForRpc(const char *module_name)
+bool NetConfAgent::subscriberForRpc(const string *module_name)
 {
+
+    auto subscribe = std::make_shared<sysrepo::Subscribe>(m_Session);
+ 
+    printf("Application will make an rpc call in %s\n", module_name->c_str());
+
+    auto cbVals = [](sysrepo::S_Session session, const char* op_path,
+        const sysrepo::S_Vals input, sr_event_t event, uint32_t request_id, sysrepo::S_Vals_Holder output) 
+        {
+            cout << "\n ========== RPC CALLED ==========\n" << endl;
+            print_value(input->val(0));
+            auto out_vals = output->allocate(1);
+            out_vals->val(0)->set("/mobile-network:activate-software-image/status","output value",SR_STRING_T);
+            return SR_ERR_OK;
+        };
+        cout << "\n ========== SUBSCRIBE TO RPC CALL ==========\n" << endl;
+
+       subscribe->rpc_subscribe("/mobile-network:activate-software-image", cbVals, 1);
+
+    //    auto in_vals = std::make_shared<sysrepo::Vals>(1);
+
+    //     in_vals->val(0)->set("/mobile-network:activate-software-image/image-name","set somthing in input ", SR_STRING_T);
+
+    //             cout << "\n ========== START RPC CALL ==========\n" << endl;
+    //     auto out_vals = m_Session->rpc_send("/mobile-network:activate-software-image", in_vals);
+
+    //     cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
+    //     for(size_t n=0; n < out_vals->val_cnt(); ++n)
+    //         print_value(out_vals->val(n));
+
+     /* loop until ctrl-c is pressed / SIGINT is received */
+    signal(SIGINT, sigint_handler);
+    while (!exit_application) {
+        sleep(1000);  /* or do some more useful work... */
+    }
+        cout << "\n ========== END PROGRAM ==========\n" << endl;
+    
+   
 }
 
 bool NetConfAgent::notifySysrepo(const string *module_name)
