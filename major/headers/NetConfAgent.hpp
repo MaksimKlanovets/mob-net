@@ -23,7 +23,7 @@ public:
     // set noconfig data, call back for them 
     bool registerOperData( const string *module_name,const string *xpath, map<string,string>*userName);
 
-    bool subscriberForRpc(const char *module_name);
+    bool subscriberForRpc(const string *module_name);
     //sent some notif 
     bool notifySysrepo(const string *module_name);
     //change data for a given path
@@ -39,7 +39,7 @@ void print_change(sysrepo::S_Change change);
 void print_node(libyang::S_Data_Node &node);
 //helper function for print type 
 const char * nodetype2str(LYS_NODE type);
-
+static
 void print_value(sysrepo::S_Val value);
 };
 
