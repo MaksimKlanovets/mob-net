@@ -4,6 +4,8 @@
   </target>
   <error-option>rollback-on-error</error-option>
   <config>
+
+  
    <core xmlns="ns:mobNetwork">
      <subscribers>
         <number>001</number>
@@ -14,6 +16,9 @@
   </config>
 </edit-config>
 
+ <activate-software-image xmlns="ns:mobNetwork">
+         <image-name>something here</image-name>
+      </activate-software-image>
 
 
     <notification
@@ -25,7 +30,9 @@
        </test-notif>
      </notification>
 
-
+      <activate-software-image xmlns="ns:mobNetwork">
+         <image-name>something here</image-name>
+      </activate-software-image>
 
 
 <edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">

@@ -47,7 +47,7 @@ netConfAgent.initSysrepo();
 //netConfAgent.changeData("/mobile-network:core/subscribers[number = '001']/state", status);
 //netConfAgent.fetchData("/mobile-network:core/subscribers[number = '001']/state",&data,key);
 //netConfAgent.notifySysrepo(&module_name);
-//netConfAgent.subscriberForRpc(&module_name);
+netConfAgent.subscriberForRpc(&module_name);
 
 int stop;
 cin >>stop;

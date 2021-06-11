@@ -2,7 +2,19 @@ module mobile-network {
     namespace "ns:mobNetwork";
 
     prefix mobnet;
-
+    
+rpc activate-software-image {
+         input {
+             leaf image-name {
+                 type string;
+             }
+         }
+         output {
+             leaf status {
+                 type string;
+             }
+         }
+     }
 container core
 {
    config true;
