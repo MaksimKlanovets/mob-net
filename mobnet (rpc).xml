@@ -4,8 +4,6 @@
   </target>
   <error-option>rollback-on-error</error-option>
   <config>
-
-  
    <core xmlns="ns:mobNetwork">
      <subscribers>
         <number>001</number>
