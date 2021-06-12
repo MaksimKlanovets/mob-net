@@ -28,14 +28,14 @@ int main(int argc, char **argv)
 const string module_name = "mobile-network";
 
 ///////////////test data///////////////////////////////////////////
-string key = "001";
-string status = "active"; //userName (noconfig),number(key), incomingNumber,state(mandatory)
-
-string dataforFetch = {};
-map<string,string>userName;
-string xpathOperdat= "/mobile-network:core/subscribers[number = '001']";
-userName.emplace(make_pair(xpathOperdat,"RegisterOperData"));
-
+string xpathOperdat= "/mobile-network:core/subscribers[number = '001']/userName";
+pair<string, string> userPrivateData = make_pair(xpathOperdat,"this name");
+///////////////////////
+string pathFoFetchData = "/mobile-network:core/subscribers[number = '001']/state";
+pair<string,string>pairFromFetch;
+pairFromFetch.first = pathFoFetchData;
+//////////////////////
+pair<string,string> dataForChange = make_pair("/mobile-network:core/subscribers[number = '001']/state","busy");
 ///////////////////////////////////////////////////////////////////
 
 ns_NetConf::NetConfAgent netConfAgent;
@@ -43,12 +43,18 @@ ns_NetConf::NetConfAgent netConfAgent;
 
 netConfAgent.initSysrepo();
 //netConfAgent.subscriberForModelChanges(&module_name);
-//netConfAgent.fetchData("/mobile-network:core/subscribers[number = '001']/state",dataforFetch,key);
-//netConfAgent.registerOperData(&module_name,&xpathOperdat,&userName);
-//netConfAgent.changeData("/mobile-network:core/subscribers[number = '001']/state", status);
-//netConfAgent.fetchData("/mobile-network:core/subscribers[number = '001']/state",&data,key);
-//netConfAgent.notifySysrepo(&module_name);
-//netConfAgent.subscriberForRpc(&module_name);
+
+
+
+//netConfAgent.registerOperData(module_name,userPrivateData);
+
+//netConfAgent.changeData(dataForChange);
+
+//netConfAgent.fetchData(pairFromFetch);
+
+//netConfAgent.notifySysrepo(module_name);
+
+//netConfAgent.subscriberForRpc(module_name);
 
 int stop;
 cin >>stop;

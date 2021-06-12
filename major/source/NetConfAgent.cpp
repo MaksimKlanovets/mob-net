@@ -3,14 +3,6 @@
  #include <signal.h>
  #include <unistd.h>
 
-volatile int exit_application = 0;
-
-static void
-sigint_handler(int signum)
-{
-    exit_application = 1;
-}
-
 namespace ns_NetConf
 {
   
@@ -29,11 +21,12 @@ bool NetConfAgent::initSysrepo( )
     {
         /* connect to sysrepo */
         cout << "connecting to sysrepo" <<endl;
-        m_Connection = make_shared<sysrepo::Connection>();
+        _connection = make_shared<sysrepo::Connection>();
 
         /* start session */
         cout << "starting session" << endl;
-        m_Session = make_shared<sysrepo::Session>(m_Connection);
+        _session = make_shared<sysrepo::Session>(_connection);
+        _subscribe = make_shared<sysrepo::Subscribe>(_session);
     }
     catch(const std::exception& e)
     {
@@ -43,30 +36,24 @@ bool NetConfAgent::initSysrepo( )
     return true;
 }
 
-bool NetConfAgent::fetchData(const char *xpath, string &data, const string &key)
+bool NetConfAgent::fetchData(pair<string,string>&pairFromFetch)
 {
-     cout << "called fetchData" << endl;
+      cout << "called fetchData" << endl;
      
-
-        
-              auto values = m_Session->get_items(xpath);
+        auto values = _session->get_items(pairFromFetch.first.c_str()); 
         if (values == nullptr)
         {
              cout << "noda is empty " <<endl;
              return 0;
         }
-        data = values->val(0)->val_to_string();
-        cout << data << endl;
-           
+        pairFromFetch.second = values->val(0)->val_to_string();
 
     return true;
 }
 
-bool NetConfAgent::subscriberForModelChanges(const string *module_name)
+bool NetConfAgent::subscriberForModelChanges(const string &module_name)
 {
 /* subscribe for changes in running config */
-    auto m_Subscribe=  make_shared<sysrepo::Subscribe>(m_Session);
-
     auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
         uint32_t request_id) 
         {
@@ -74,50 +61,36 @@ bool NetConfAgent::subscriberForModelChanges(const string *module_name)
             return SR_ERR_OK;
         };   
       
-    m_Subscribe->module_change_subscribe(module_name->c_str(), cb);
+    _subscribe->module_change_subscribe(module_name.c_str(), cb);
 
      /* read running config */
     cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-    print_current_config(m_Session, module_name->c_str());
+    print_current_config(_session, module_name.c_str());
     
 }
 
-
-bool NetConfAgent::registerOperData( const string *module_name, const string *xpath,map<string,string>*userName)
+bool NetConfAgent::registerOperData( const string &module_name, const pair<string,string> &setData)
 {
-    map<string,string>::iterator it = userName->find(*xpath);
-    cout << "Application will provide data of " << *module_name << endl;
-    auto subscribe = std::make_shared<sysrepo::Subscribe>(m_Session);
+    cout << "Application will provide data of " << module_name << endl;
         
-    auto cb = [it] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+    auto cb = [&setData] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
         uint32_t request_id, libyang::S_Data_Node &parent) 
     {
         cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
-        //it's index of leef for new noconfig data
-        string pathNewSubTree =it->first+  "/userName";
-    
-        cout << it->first << it->second << endl;
+        
+        cout << setData.first << setData.second << endl;
         libyang::S_Context ctx = session->get_context();
         libyang::S_Module mod = ctx->get_module(module_name);
-        parent->new_path(ctx, pathNewSubTree.c_str(), it->second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
+        parent->new_path(ctx,setData.first.c_str(), setData.second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
               
         return SR_ERR_OK;
     };
 
-     subscribe->oper_get_items_subscribe(module_name->c_str(), cb, xpath->c_str());
-
-    /* loop until ctrl-c is pressed / SIGINT is received */
-    // signal(SIGINT, sigint_handler);
-    // while (!exit_application) {
-    //     sleep(1000);  /* or do some more useful work... */
-    // }
+     _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, setData.first.c_str());
 }
-bool NetConfAgent::subscriberForRpc(const string *module_name)
+bool NetConfAgent::subscriberForRpc(const string &module_name)
 {
-
-    auto subscribe = std::make_shared<sysrepo::Subscribe>(m_Session);
- 
-    printf("Application will make an rpc call in %s\n", module_name->c_str());
+    printf("Application will make an rpc call in %s\n", module_name.c_str());
 
     auto cbVals = [](sysrepo::S_Session session, const char* op_path,
         const sysrepo::S_Vals input, sr_event_t event, uint32_t request_id, sysrepo::S_Vals_Holder output) 
@@ -130,7 +103,7 @@ bool NetConfAgent::subscriberForRpc(const string *module_name)
         };
         cout << "\n ========== SUBSCRIBE TO RPC CALL ==========\n" << endl;
 
-       subscribe->rpc_subscribe("/mobile-network:activate-software-image", cbVals, 1);
+       _subscribe->rpc_subscribe("/mobile-network:activate-software-image", cbVals, 1);
 
     //    auto in_vals = std::make_shared<sysrepo::Vals>(1);
 
@@ -143,29 +116,23 @@ bool NetConfAgent::subscriberForRpc(const string *module_name)
     //     for(size_t n=0; n < out_vals->val_cnt(); ++n)
     //         print_value(out_vals->val(n));
 
-     /* loop until ctrl-c is pressed / SIGINT is received */
-    signal(SIGINT, sigint_handler);
-    while (!exit_application) {
-        sleep(1000);  /* or do some more useful work... */
-    }
         cout << "\n ========== END PROGRAM ==========\n" << endl;
     
-   
 }
 
-bool NetConfAgent::notifySysrepo(const string *module_name)
+bool NetConfAgent::notifySysrepo(const string &module_name)
 {
     try 
     {
-
-         libyang::S_Context ctx = m_Connection->get_context();
-         libyang::S_Module mod = ctx->get_module(module_name->c_str());
+         libyang::S_Context ctx = _connection->get_context();
+         libyang::S_Module mod = ctx->get_module(module_name.c_str());
          auto in_trees = std::make_shared<libyang::Data_Node>(ctx, "/mobile-network:test-notif", nullptr, LYD_ANYDATA_CONSTSTRING, 0);
          std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val1", "some-value"));
          std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val2", "some-other-value"));
 
          cout << "\n ========== START NOTIF TREE SEND ==========\n" << endl;
-        m_Session->event_notif_send(in_trees);
+
+        _session->event_notif_send(in_trees);
 
         cout << "\n ========== END PROGRAM NOTIF==========\n" << endl;
     } 
@@ -176,12 +143,21 @@ bool NetConfAgent::notifySysrepo(const string *module_name)
     }
 }
 
-bool NetConfAgent::changeData(const char *xpath,const string &value)
+bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
-    cout << "called changeData" <<endl;
-    m_Session->set_item_str(xpath,value.c_str());
+    try
+    {
+       cout << "called changeData" <<endl;
+     _session->set_item_str(setData.first.c_str(),setData.second.c_str());
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
     
     return true;
+
 }
 
 void
