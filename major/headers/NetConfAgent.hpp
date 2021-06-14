@@ -1,47 +1,79 @@
 
 #include "libsysrepocpp/headers/Session.hpp"
 using namespace std;
-//data for test function NetConfAgent::print_current_config
-#define MAX_LEN 100
+
 namespace ns_NetConf
 {
 
 class NetConfAgent
 {
-private:
-    shared_ptr<sysrepo::Session> m_Session;
-    shared_ptr<sysrepo::Connection> m_Connection;
 public:
     NetConfAgent();
     ~NetConfAgent();
-
-    //initialization sysrepo
+    
+/** 
+* @brief initialization Sysrepo. 
+*
+*@return true if ok, otherwise false
+*/
     bool initSysrepo( );
-    //write data from path
-    bool fetchData(const char *xpath, string &data,const string &key);
-    //subcriber for model Changes 
-    bool subscriberForModelChanges(const string *module_name);
-    // set noconfig data, call back for them 
-    bool registerOperData( const string *module_name,const string *xpath, map<string,string>*userName);
-
-    bool subscriberForRpc(const string *module_name);
-    //sent some notif 
-    bool notifySysrepo(const string *module_name);
+/** 
+* @brief fetching data from  a given path
+*
+*@param name xpath - path for fetching. 
+*@param name mapFromFetch - here will save data from a given path. 
+            first- key/path. second -value;
+*
+*@return true if ok, otherwise false
+*/
+    bool fetchData(const string & xpath, map<string,string>&mapFromFetch);
+/** 
+* @brief  Subscribe for model Changes
+*
+*@param name Module name for subscribe
+*
+*@return true if ok, otherwise false
+*/
+    bool subscriberForModelChanges(const string &module_name);
+/** 
+* @brief set noconfig data - username;
+*
+*@param name module_name - name of module.
+*@param name setData - first - path, second value 
+*
+*@return true if ok, otherwise false
+*/
+    bool registerOperData( const string &module_name,const pair<string,string> &setData);
+/** 
+* @brief subscribe For Rpc/ call back for rpc message
+*
+*@param name Module name.
+*
+*@return true if ok, otherwise false
+*/
+    bool subscriberForRpc(const string &module_name);
+/** 
+* @brief notifySysrepo - notifications Sysrepo
+*
+*@param name Module name.
+*
+*@return true if ok, otherwise false
+*/
+    bool notifySysrepo(const string &module_name);
+/** 
+* @brief changeData - change data 
+*
+*@param name setData - set data. First arg path/second value
+*
+*@return true if ok, otherwise false
+*/
     //change data for a given path
-    bool changeData(const char *xpath,const string &value);
+    bool changeData(const pair<string,string> &setData);
 
-      
-    /* Function to print current configuration state.
- * It does so by loading all the items of a session and printing them out. */
-void print_current_config(sysrepo::S_Session session, const char *module_name);
-// Helper function for printing changes given operation, old and new value. 
-void print_change(sysrepo::S_Change change);
-//helper function for print nota
-void print_node(libyang::S_Data_Node &node);
-//helper function for print type 
-const char * nodetype2str(LYS_NODE type);
-static
-void print_value(sysrepo::S_Val value);
+private:
+    shared_ptr<sysrepo::Session> _session;
+    shared_ptr<sysrepo::Subscribe> _subscribe;
+    shared_ptr<sysrepo::Connection> _connection;
 };
 
 }
