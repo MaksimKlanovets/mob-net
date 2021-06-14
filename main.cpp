@@ -10,47 +10,99 @@
 
 using namespace std;
 
-//erase temp comands
-void resetData(string &str1,string &str2);
-//pring list of commmands
-void listCommands(const vector<string> &com);
-//if ch = 0 must arg if ch=1 than cannot arg
-void printErr(const string &com, int ch = 0);
-//separate arg from comman, return if arg exist
-bool separateComArg(string &com,string &arg);
-//command must contain an arg
-bool cMustArg(const string &com, const string &arg); 
-//command hasn't to contain an arg
-bool cNoArg(const string &com, const string &arg);
+namespace 
+{
+    //erase temp comands
+    void resetData(string &str1,string &str2)
+    {
+     str1.clear();
+     str2.clear();
+    }
+    //pring list of commmands
+    void listCommands(const vector<string> &com)
+    {
+        for(const auto &elem : com ) 
+        {
+            cout<< elem <<endl;
+        }
+    }
+    //if ch = 0 function must have an arg, if ch=1 than cannot arg
+    void printErr(const string &com, int ch = 0 )
+    {
+        if(ch == 0) 
+        {
+            cout << com << " must contains an argument" << endl;
+        }
+        if (ch == 1)    
+        {
+            cout << com << " cannot contains an argument" << endl;
+        }
+    }
+    //separate arg from comman
+    bool separateComArg(string &com,string &arg)
+    {
+        if (com.find(' ') != string::npos) 
+        {
+            arg = com.substr(com.find(' ')+1,com.size() -1);
+            com.erase(com.find(' '),com.size() -1);
+            return true;
+        }
+        return false;
+    }
+    //command must contain an arg
+    bool cMustArg(const string &com, const string &arg) 
+    {
+        if (!arg.empty()) 
+        {
+            cout << "command-> " << com << "  Arg-> " << arg << endl;
+            return true;
+        }
+        printErr(com);
+        return false;
+    }
+    //command hasn't to contain an arg
+    bool cNoArg(const string &com, const string &arg)
+    {
+        if (arg.empty())
+        {
+            cout << "command-> " << com  << endl;
+            return true;
+        }
+        printErr(com,1);
+        return false;
+    }
+} 
 
 int main(int argc, char **argv)
 {
 const string module_name = "mobile-network";
 
-///////////////test data///////////////////////////////////////////
+///////////////TEST DATA////////////////////////////////////////////////////////////////////////////////////////
 string xpathOperdat= "/mobile-network:core/subscribers[number = '001']/userName";
 pair<string, string> userPrivateData = make_pair(xpathOperdat,"this name");
 ///////////////////////
-string pathFoFetchData = "/mobile-network:core/subscribers[number = '001']/state";
-pair<string,string>pairFromFetch;
-pairFromFetch.first = pathFoFetchData;
+string pathFoFetchData = "/mobile-network:core/subscribers[number = '001']";
+map<string,string>mapFromFetch;
 //////////////////////
 pair<string,string> dataForChange = make_pair("/mobile-network:core/subscribers[number = '001']/state","busy");
-///////////////////////////////////////////////////////////////////
+/////////////////END TEST DATA//////////////////////////////////////////////////////////////////////////////////
 
 ns_NetConf::NetConfAgent netConfAgent;
 
 
 netConfAgent.initSysrepo();
-//netConfAgent.subscriberForModelChanges(&module_name);
-
-
+//netConfAgent.subscriberForModelChanges(module_name);
 
 //netConfAgent.registerOperData(module_name,userPrivateData);
 
 //netConfAgent.changeData(dataForChange);
 
-//netConfAgent.fetchData(pairFromFetch);
+netConfAgent.fetchData(pathFoFetchData,mapFromFetch);
+
+for (map<string,string>::const_iterator it = mapFromFetch.begin(); it != mapFromFetch.end(); it++)
+{
+    cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
+}
 
 //netConfAgent.notifySysrepo(module_name);
 
@@ -59,7 +111,7 @@ netConfAgent.initSysrepo();
 int stop;
 cin >>stop;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string tempComand {};
 string tempArg{};
 bool isReg = false;
@@ -133,48 +185,3 @@ my_map.emplace("exit", []()
   return 0;
 }
 
-void resetData(string &str1,string &str2)
-{
-    str1.clear();
-    str2.clear();
-}
-
-void listCommands(const vector<string> &com){
-    for(const auto &elem : com ) {
-    cout<< elem <<endl;
-    }
-}
-
-void printErr(const string &com, int ch ){
-    if(ch == 0) {
-        cout << com << " must contains an argument" << endl;
-    }
-    if (ch == 1)    {
-        cout << com << " cannot contains an argument" << endl;
-    }
-}
-bool separateComArg(string &com,string &arg){
- if (com.find(' ') != string::npos) {
-     arg = com.substr(com.find(' ')+1,com.size() -1);
-     com.erase(com.find(' '),com.size() -1);
-     return true;
-    }
-    return false;
-}
-bool cMustArg(const string &com, const string &arg) {
-if (!arg.empty()) {
-    cout << "command-> " << com << "  Arg-> " << arg << endl;
-    return true;
-}
-printErr(com);
-return false;
-}
-bool cNoArg(const string &com, const string &arg){
-    if (arg.empty())
-    {
-        cout << "command-> " << com  << endl;
-        return true;
-    }
-    printErr(com,1);
-    return false;
-}
