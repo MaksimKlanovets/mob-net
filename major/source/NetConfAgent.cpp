@@ -1,7 +1,12 @@
 #include "NetConfAgent.hpp"
-
+#include "MobileClient.hpp"
  #include <signal.h>
  #include <unistd.h>
+ #include "libsysrepocpp/headers/Session.hpp"
+namespace nsMobileClient
+ {
+     class MobileClient;
+ }
 
  namespace
  {
@@ -311,25 +316,33 @@ bool NetConfAgent::subscriberForModelChanges(const string &module_name)
     return true;
 }
 
-bool NetConfAgent::registerOperData( const string &module_name, const pair<string,string> &setData)
+
+bool NetConfAgent::registerOperData( const string &module_name, const string &xpath ,
+nsMobileClient::MobileClient &mobClient)
 {
     cout << "Application will provide data of " << module_name << endl;
+     
         try
         {
-            auto cb = [&setData] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
+           
+            auto cb = [&mobClient,xpath] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
             uint32_t request_id, libyang::S_Data_Node &parent) 
             {
-                cout << "\n\n ========== CALLBACK CALLED TO PROVIDE \"" << path << "\" DATA ==========\n" << endl;
-        
-                cout << setData.first << setData.second << endl;
-                libyang::S_Context ctx = session->get_context();
-                libyang::S_Module mod = ctx->get_module(module_name);
-                 string pathUserName = setData.first + "/userName";
-                parent->new_path(ctx,pathUserName.c_str(), setData.second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
-              
+                cout << "\n\n ========== registerOperData " << endl;
+                string name;
+                mobClient.handleOperData(name);
+
+                 libyang::S_Context ctx = session->get_context();
+                 libyang::S_Module mod = ctx->get_module(module_name);
+                 string pathUserName = xpath + "/userName";
+                 
+                cout << pathUserName <<endl;
+                parent->new_path(ctx,pathUserName.c_str(), name.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
+                
                 return SR_ERR_OK;
             };
-            _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, setData.first.c_str());
+            /////&client
+            _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, xpath.c_str());
         }
         catch(const std::exception& e)
         {
@@ -411,6 +424,7 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
     {
         cout << "called changeData" <<endl;
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
+        _session->apply_changes();
     }
     catch(const std::exception& e)
     {
