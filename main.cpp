@@ -3,7 +3,8 @@
 #include <functional>
 #include <vector>
 #include <string>
-#include "NetConfAgent.hpp"
+//#include "NetConfAgent.hpp"
+#include "MobileClient.hpp"
 #include <cstring>
 
 #include "libsysrepocpp/headers/Session.hpp"
@@ -75,43 +76,33 @@ namespace
 
 int main(int argc, char **argv)
 {
-const string module_name = "mobile-network";
 
-///////////////TEST DATA////////////////////////////////////////////////////////////////////////////////////////
-string xpathOperdat= "/mobile-network:core/subscribers[number = '001']/userName";
-pair<string, string> userPrivateData = make_pair(xpathOperdat,"this name");
+
+/////////////////END TEST DATA netconfAgent//////////////////////////////////////////////////////////////////////////////////
+// string xpathOperdat= "/mobile-network:core/subscribers[number = '001']";
+// pair<string, string> userPrivateData = make_pair(xpathOperdat,"this name");
 ///////////////////////
-string pathFoFetchData = "/mobile-network:core/subscribers[number = '001']";
-map<string,string>mapFromFetch;
+// string pathFoFetchData = "/mobile-network:core/subscribers[number = '001']";
+// map<string,string>mapFromFetch;
 //////////////////////
-pair<string,string> dataForChange = make_pair("/mobile-network:core/subscribers[number = '001']/state","busy");
-/////////////////END TEST DATA//////////////////////////////////////////////////////////////////////////////////
-
-ns_NetConf::NetConfAgent netConfAgent;
-
-
-netConfAgent.initSysrepo();
+//pair<string,string> dataForChange = make_pair("/mobile-network:core/subscribers[number = '001']/state","busy");
+// ns_NetConf::NetConfAgent netConfAgent;
+// netConfAgent.initSysrepo();
 //netConfAgent.subscriberForModelChanges(module_name);
-
 //netConfAgent.registerOperData(module_name,userPrivateData);
-
 //netConfAgent.changeData(dataForChange);
-
-netConfAgent.fetchData(pathFoFetchData,mapFromFetch);
-
-for (map<string,string>::const_iterator it = mapFromFetch.begin(); it != mapFromFetch.end(); it++)
-{
-    cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
-}
-
+// netConfAgent.fetchData(pathFoFetchData,mapFromFetch);
+// for (map<string,string>::const_iterator it = mapFromFetch.begin(); it != mapFromFetch.end(); it++)
+// {
+//     cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
+// }
 //netConfAgent.notifySysrepo(module_name);
-
 //netConfAgent.subscriberForRpc(module_name);
 
-int stop;
-cin >>stop;
+//  int pause1;
+//  cin >>pause1;
+///////////////END TEST DATA NETCONFAGENT///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 string tempComand {};
 string tempArg{};
 bool isReg = false;
@@ -122,6 +113,24 @@ const vector<string> m_com{"register","unregister","call","name",
 
 map<string,function<void()>> my_map;
  
+
+/////////TEST DATA FOR MOBILECLIENT////////////////////////////////////////////////////////////////////////
+ const string module_name = "mobile-network";
+nsMobileClient::MobileClient mobileClient;
+
+string xpathOperdat= "/mobile-network:core/subscribers[number='102']";
+string name = {};
+cin >>xpathOperdat;
+cin >> name;
+pair<string, string> userPrivateData = make_pair(xpathOperdat,name);
+
+
+mobileClient.registerClient(module_name,userPrivateData);
+
+int pause1;
+  cin >>pause1;
+////////END TEST DATA FOR MOBILECLIENT////////////////////////////////////////////////////////////////////
+
 my_map.emplace("help", [&m_com]() 
 { 
     listCommands(m_com); 
@@ -130,7 +139,9 @@ my_map.emplace("register",[&tempComand,&tempArg,&isReg]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
+   
        isReg = true;
+
     }
     else if (isReg)
     {
@@ -169,6 +180,9 @@ my_map.emplace("exit", []()
     return 0;
 });
 
+
+
+
 // while (true)
 // {
 //     resetData(tempComand,tempArg);
@@ -180,7 +194,7 @@ my_map.emplace("exit", []()
 // it->second();
 //     }
     
-// }
+// // }
 
   return 0;
 }

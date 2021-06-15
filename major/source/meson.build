@@ -1,7 +1,8 @@
 source_include = include_directories('../headers')
 
 major_files = [
-    'NetConfAgent.cpp'
+    'NetConfAgent.cpp',
+    'MobileClient.cpp'
    
 ]
 

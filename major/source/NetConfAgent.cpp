@@ -324,19 +324,20 @@ bool NetConfAgent::registerOperData( const string &module_name, const pair<strin
                 cout << setData.first << setData.second << endl;
                 libyang::S_Context ctx = session->get_context();
                 libyang::S_Module mod = ctx->get_module(module_name);
-                parent->new_path(ctx,setData.first.c_str(), setData.second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
+                 string pathUserName = setData.first + "/userName";
+                parent->new_path(ctx,pathUserName.c_str(), setData.second.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
               
                 return SR_ERR_OK;
             };
-
             _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, setData.first.c_str());
-
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
             return false;
         }
+       
+        
         
     return true;
 }
