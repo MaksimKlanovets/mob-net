@@ -102,44 +102,42 @@ int main(int argc, char **argv)
 //  int pause1;
 //  cin >>pause1;
 ///////////////END TEST DATA NETCONFAGENT///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+const string module_name = "mobile-network";
 string tempComand {};
 string tempArg{};
 bool isReg = false;
 
 //commands with arg register,call,name
-const vector<string> m_com{"register","unregister","call","name",
-                        "answer","reject","callEnd","help","exit"};
+const vector<string> m_com
+{
+    "register [name]- User registration ","unregister - delete registration",
+    "call [phoneNumber]- call to  ","name - change name ", "answer - take the call",
+    "reject - is talking to ","callEnd - end the call","help","exit"
+};
 
 map<string,function<void()>> my_map;
  
 
-/////////TEST DATA FOR MOBILECLIENT////////////////////////////////////////////////////////////////////////
- const string module_name = "mobile-network";
+
+
 nsMobileClient::MobileClient mobileClient;
-
-string xpathOperdat= "/mobile-network:core/subscribers[number='102']";
-string name = {};
-cin >>xpathOperdat;
-cin >> name;
-pair<string, string> userPrivateData = make_pair(xpathOperdat,name);
-
-
-mobileClient.registerClient(module_name,userPrivateData);
-
-int pause1;
-  cin >>pause1;
-////////END TEST DATA FOR MOBILECLIENT////////////////////////////////////////////////////////////////////
 
 my_map.emplace("help", [&m_com]() 
 { 
     listCommands(m_com); 
 });
-my_map.emplace("register",[&tempComand,&tempArg,&isReg]()
+my_map.emplace("register",[&tempComand,&tempArg,&isReg,&module_name,&mobileClient]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
-   
+        string number;// = ;
+        cout << "input your phone number" <<endl;
+        cin >>number;
+        string path = "/mobile-network:core/subscribers[number='" + number + "']";
+        cout << path <<endl;
+
+        pair<string, string> userPrivateData = make_pair(path,tempArg);
+        mobileClient.registerClient(module_name,userPrivateData);
        isReg = true;
 
     }
@@ -148,9 +146,15 @@ my_map.emplace("register",[&tempComand,&tempArg,&isReg]()
         cout << "Only one registration" << endl;
     }
 });
-my_map.emplace("unregister",[&tempComand,&tempArg,&isReg]()
+my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
 {
-    cNoArg(tempComand,tempArg);
+    if (cNoArg(tempComand,tempArg) && isReg)
+    {
+        mobileClient.~MobileClient();
+        cout << "registration was deleted" << endl;
+    }
+    
+    
     isReg = false;
 });
 my_map.emplace("call", [&tempComand,&tempArg]() 
@@ -183,18 +187,23 @@ my_map.emplace("exit", []()
 
 
 
-// while (true)
-// {
-//     resetData(tempComand,tempArg);
-//     getline(cin,tempComand);
-//     separateComArg(tempComand,tempArg);
-//     map<string,function<void()>>::iterator it = my_map.find(tempComand);
-//     if(it != my_map.end())
-//     {
-// it->second();
-//     }
+while (true)
+{
+    resetData(tempComand,tempArg);
+    getline(cin,tempComand);
+    separateComArg(tempComand,tempArg);
+    map<string,function<void()>>::iterator it = my_map.find(tempComand);
+    if(it != my_map.end())
+    {
+        if (it->first != "exit")
+        {
+           it->second(); 
+           continue;
+        }
+        break;
+    }
     
-// // }
+ }
 
   return 0;
 }
