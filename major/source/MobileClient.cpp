@@ -1,42 +1,52 @@
- #include "MobileClient.hpp"
- 
- using namespace std;
+
+#include "MobileClient.hpp"
+
+  using namespace std;
+
+ namespace
+ {
+   const string MODULE_NAME = "mobile-network";
+   const string PATH = "/mobile-network:core/subscribers[number='";
+ }
+
  namespace nsMobileClient
  {
 
  MobileClient::MobileClient(/* args */)
  {
    _name = {};
+   _number = {};
  }
  
  MobileClient::~MobileClient()
  {
  }
-
- bool MobileClient::registerClient(const string &module_name, const pair<string,string> &setData)
+// const module_name/ path
+ bool MobileClient::registerClient(const string &name, const string &number)
  {
 
-    cout << "called registerClient" <<endl;
-      try
-     {
-        _netConfAgent = make_shared<ns_NetConf::NetConfAgent>();
-        _netConfAgent->initSysrepo();
+  cout << "called registerClient" <<endl;
 
-     }
-     catch(const std::exception& e)
-     {
-         std::cerr << e.what() << '\n';
-         return false;
-     } 
-    _name = setData.second;
-   
-    _netConfAgent->registerOperData(module_name,setData);
-      
-    cout <<"register end" <<endl;
-     return true;
+  _netConfAgent = make_shared<ns_NetConf::NetConfAgent>();
+  _netConfAgent->initSysrepo();
+
+  //set user name and number
+  _name = name;
+  _number = number;
+    
+  const string path = PATH +  _number + "']";
+
+  _netConfAgent->registerOperData(MODULE_NAME,path,*this);
+
+  cout <<"register end" <<endl;
+  return true;
 
  }
 
- }
+void MobileClient::handleOperData(string &name)
+{
+ cout << " called handleOperData" << endl;
+ name = _name;
+}
 
- 
+}

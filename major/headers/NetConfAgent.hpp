@@ -1,6 +1,16 @@
+#pragma once 
 
 #include "libsysrepocpp/headers/Session.hpp"
+
+
+
 using namespace std;
+
+namespace nsMobileClient
+ {
+     class MobileClient;
+ }
+
 
 namespace ns_NetConf
 {
@@ -43,7 +53,8 @@ public:
 *
 *@return true if ok, otherwise false
 */
-    bool registerOperData( const string &module_name,const pair<string,string> &setData);
+    bool registerOperData( const string &module_name, const string &xpath,
+    nsMobileClient::MobileClient &mobClient);
 /** 
 * @brief subscribe For Rpc/ call back for rpc message
 *
@@ -74,6 +85,7 @@ private:
     shared_ptr<sysrepo::Session> _session;
     shared_ptr<sysrepo::Subscribe> _subscribe;
     shared_ptr<sysrepo::Connection> _connection;
+    
 };
 
 }

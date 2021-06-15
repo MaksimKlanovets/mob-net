@@ -111,7 +111,7 @@ bool isReg = false;
 const vector<string> m_com
 {
     "register [name]- User registration ","unregister - delete registration",
-    "call [phoneNumber]- call to  ","name - change name ", "answer - take the call",
+    "call [phoneNumber]- call to  ","name - change name or set ", "answer - take the call",
     "reject - is talking to ","callEnd - end the call","help","exit"
 };
 
@@ -126,18 +126,15 @@ my_map.emplace("help", [&m_com]()
 { 
     listCommands(m_com); 
 });
-my_map.emplace("register",[&tempComand,&tempArg,&isReg,&module_name,&mobileClient]()
+my_map.emplace("register",[&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
         string number;// = ;
         cout << "input your phone number" <<endl;
         cin >>number;
-        string path = "/mobile-network:core/subscribers[number='" + number + "']";
-        cout << path <<endl;
-
-        pair<string, string> userPrivateData = make_pair(path,tempArg);
-        mobileClient.registerClient(module_name,userPrivateData);
+        mobileClient.registerClient(tempArg, number);
+       
        isReg = true;
 
     }
