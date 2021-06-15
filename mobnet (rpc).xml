@@ -6,13 +6,30 @@
   <config>
    <core xmlns="ns:mobNetwork">
      <subscribers>
-        <number>001</number>
-        <incomingNumber>+790-001</incomingNumber>
+        <number>102</number>
+        <incomingNumber></incomingNumber>
         <state>idle</state>
      </subscribers>
    </core>
   </config>
 </edit-config>
+
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+        <number>911</number>
+        <incomingNumber></incomingNumber>
+        <state>idle</state>
+     </subscribers>
+   </core>
+  </config>
+</edit-config>
+
 
  <activate-software-image xmlns="ns:mobNetwork">
          <image-name>something here</image-name>
@@ -49,3 +66,5 @@
    </core>
   </config>
 </edit-config>
+
+
