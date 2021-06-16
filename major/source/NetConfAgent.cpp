@@ -271,6 +271,7 @@ bool NetConfAgent::initSysrepo( )
 
 bool NetConfAgent::fetchData(const string & xpath, map<string,string>&mapFromFetch)
 {
+    //cout << "called fetch data " << endl;
     try
     {
        libyang::S_Data_Node data = _session->get_data(xpath.c_str());
@@ -305,41 +306,22 @@ bool NetConfAgent::fetchData(const string & xpath, map<string,string>&mapFromFet
 return true;
 }
 
-bool NetConfAgent::subscriberForModelChanges(const string &module_name)
+bool NetConfAgent::subscriberForModelChanges(const string &module_name,nsMobileClient::MobileClient &mobClient,
+                                            const string &xpath )
 {
      
     try
     {
         /* subscribe for changes in running config */
-         auto cb = [] (sysrepo::S_Session sess, const char *module_name, const char *xpath, sr_event_t event,
-        uint32_t request_id) 
+         auto cb = [&mobClient] (sysrepo::S_Session sess, const char *module_name, 
+         const char *xpath, sr_event_t event,  uint32_t request_id) 
         {
-            char change_path[MAX_LEN];
-            cout << "\n\n ========== Notification " << ev_to_str(event) << " =============================================";
-                if (SR_EV_CHANGE == event) {
-                    cout << "\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n" << endl;
-                    print_current_config(sess, module_name);
-                }
-
-                cout << "\n\n ========== CHANGES: =============================================\n" << endl;
-
-                snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
-
-                auto it = sess->get_changes_iter(change_path);
-
-                while (auto change = sess->get_change_next(it)) {
-                    print_change(change);
-                }
-
-                cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
+            mobClient.handleModuleChange();
             return SR_ERR_OK;
         };   
-         // may require xpath
-        _subscribe->module_change_subscribe(module_name.c_str(), cb);
 
-        /* read running config */
-        cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-        print_current_config(_session, module_name.c_str());
+        _subscribe->module_change_subscribe(module_name.c_str(), cb,xpath.c_str());
+
     }
     catch(const std::exception& e)
     {
@@ -453,7 +435,7 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
     try
     {
     
-        cout <<"path -----" <<  setData.first << endl ;
+        cout <<"changeDAta path -----" <<  setData.first << endl ;
 
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
