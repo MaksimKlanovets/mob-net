@@ -19,25 +19,17 @@ class MobileClient
      MobileClient();
      ~MobileClient();
 
-/** 
-* @brief  
-*
-*@param  
-*@param  
-*
-*@return true if ok, otherwise false
-*/
-bool registerClient( const string &name, const string &number);
 /**
- * @brief 
- * @param 
- * @return
+ * @brief registration user
+ * @param name - user name. number user number
+ * @return true if ok, otherwise false
  */
-void handleModuleChange();
+bool registerClient( const string &name, const string &number);
+
+void handleModuleChange();//&mobileClient param/ lambda the same as registerOperData
 /**
- * @brief 
- * @param 
- * @return
+ * @brief handle oper data    
+ * @param name - set user name 
  */
 void handleOperData(string &name);
 
@@ -45,7 +37,10 @@ void handleRpc();
 
 void handleNotification();
 
-
+bool setState(const string &number);
+void  setName(const string &name);
+void setNumber(const string &number);
+bool makeCall(const string &number);//change state
 
 private:
     shared_ptr <ns_NetConf::NetConfAgent> _netConfAgent; 

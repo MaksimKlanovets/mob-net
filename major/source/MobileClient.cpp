@@ -21,7 +21,7 @@
  MobileClient::~MobileClient()
  {
  }
-// const module_name/ path
+
  bool MobileClient::registerClient(const string &name, const string &number)
  {
 
@@ -30,14 +30,14 @@
   _netConfAgent = make_shared<ns_NetConf::NetConfAgent>();
   _netConfAgent->initSysrepo();
 
-  //set user name and number
-  _name = name;
-  _number = number;
-    
-  const string path = PATH +  _number + "']";
-
-  _netConfAgent->registerOperData(MODULE_NAME,path,*this);
-
+  setNumber(number);
+  setName(name);
+  
+  //set state - idle
+  const string pathCh = PATH +  _number + "']" + "/state";
+  pair<string,string> setData = make_pair(pathCh,"idle");
+  _netConfAgent->changeData(setData);
+  
   cout <<"register end" <<endl;
   return true;
 
@@ -47,6 +47,17 @@ void MobileClient::handleOperData(string &name)
 {
  cout << " called handleOperData" << endl;
  name = _name;
+}
+
+void MobileClient::setName(const string &name)
+{
+  _name = name;
+  const string path = PATH +  _number + "']";
+  _netConfAgent->registerOperData(MODULE_NAME,path,*this); 
+}
+void MobileClient::setNumber(const string &number)
+{
+_number = number;
 }
 
 }
