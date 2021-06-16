@@ -7,7 +7,7 @@
    <core xmlns="ns:mobNetwork">
      <subscribers>
         <number>102</number>
-        <incomingNumber></incomingNumber>
+        <incomingNumber>3232</incomingNumber>
         <state>idle</state>
      </subscribers>
    </core>

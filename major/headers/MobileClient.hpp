@@ -37,10 +37,12 @@ void handleRpc();
 
 void handleNotification();
 
-bool setState(const string &number);
+
+void  setIncomigNumber(const string &number);
+void  setNumber(const string &number);
+void  makeCall(const string &number);//change state
+void  setState(const string &state);
 void  setName(const string &name);
-void setNumber(const string &number);
-bool makeCall(const string &number);//change state
 
 private:
     shared_ptr <ns_NetConf::NetConfAgent> _netConfAgent; 
