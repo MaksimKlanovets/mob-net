@@ -12,6 +12,21 @@ namespace nsMobileClient
  {
 //data for test function NetConfAgent::print_current_config
 #define MAX_LEN 100
+
+/* Helper function for printing events. */
+const char *ev_to_str(sr_event_t ev) 
+{
+    switch (ev) {
+    case SR_EV_CHANGE:
+        return "change";
+    case SR_EV_DONE:
+        return "done";
+    case SR_EV_ABORT:
+    default:
+        return "abort";
+    }
+}
+
 void print_current_config(sysrepo::S_Session session, const char *module_name)
 {
     char select_xpath[MAX_LEN];
@@ -292,16 +307,34 @@ return true;
 
 bool NetConfAgent::subscriberForModelChanges(const string &module_name)
 {
+     
     try
     {
         /* subscribe for changes in running config */
-         auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
+         auto cb = [] (sysrepo::S_Session sess, const char *module_name, const char *xpath, sr_event_t event,
         uint32_t request_id) 
         {
-            cout<< "called subscribers for model changes cb" << endl;
+            char change_path[MAX_LEN];
+            cout << "\n\n ========== Notification " << ev_to_str(event) << " =============================================";
+                if (SR_EV_CHANGE == event) {
+                    cout << "\n\n ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========\n" << endl;
+                    print_current_config(sess, module_name);
+                }
+
+                cout << "\n\n ========== CHANGES: =============================================\n" << endl;
+
+                snprintf(change_path, MAX_LEN, "/%s:*//.", module_name);
+
+                auto it = sess->get_changes_iter(change_path);
+
+                while (auto change = sess->get_change_next(it)) {
+                    print_change(change);
+                }
+
+                cout << "\n\n ========== END OF CHANGES =======================================\n" << endl;
             return SR_ERR_OK;
         };   
-      
+         // may require xpath
         _subscribe->module_change_subscribe(module_name.c_str(), cb);
 
         /* read running config */
@@ -324,9 +357,9 @@ nsMobileClient::MobileClient &mobClient)
      
         try
         {
-           
-            auto cb = [&mobClient,xpath] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
-            uint32_t request_id, libyang::S_Data_Node &parent) 
+            auto cb = [&mobClient,xpath] (sysrepo::S_Session session, const char *module_name, 
+            const char *path, const char *request_xpath, uint32_t request_id,
+            libyang::S_Data_Node &parent) 
             {
                 cout << "\n\n ========== registerOperData " << endl;
                 string name;
@@ -341,7 +374,6 @@ nsMobileClient::MobileClient &mobClient)
                 
                 return SR_ERR_OK;
             };
-            /////&client
             _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, xpath.c_str());
         }
         catch(const std::exception& e)
@@ -350,9 +382,7 @@ nsMobileClient::MobileClient &mobClient)
             return false;
         }
        
-        
-        
-    return true;
+return true;
 }
 bool NetConfAgent::subscriberForRpc(const string &module_name)
 {
@@ -422,7 +452,9 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
     try
     {
-        cout << "called changeData" <<endl;
+    
+        cout <<"path -----" <<  setData.first << endl ;
+
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
     }

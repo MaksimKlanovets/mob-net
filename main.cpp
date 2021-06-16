@@ -112,7 +112,7 @@ const vector<string> m_com
 {
     "register [name]- User registration ","unregister - delete registration",
     "call [phoneNumber]- call to  ","name - change name or set ", "answer - take the call",
-    "reject - is talking to ","callEnd - end the call","help","exit"
+    "reject - from active to idle","callEnd - end the incoming call","help","exit"
 };
 
 map<string,function<void()>> my_map;
@@ -130,7 +130,7 @@ my_map.emplace("register",[&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
-        string number;// = ;
+        string number;
         cout << "input your phone number" <<endl;
         cin >>number;
         mobileClient.registerClient(tempArg, number);
