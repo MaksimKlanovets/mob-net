@@ -44,7 +44,8 @@ public:
 *
 *@return true if ok, otherwise false
 */
-    bool subscriberForModelChanges(const string &module_name);
+    bool subscriberForModelChanges(const string &module_name,nsMobileClient::MobileClient &mobClient,
+                                    const string &xpath   );
 /** 
 * @brief set noconfig data - username;
 *

@@ -12,6 +12,21 @@ namespace nsMobileClient
  {
 //data for test function NetConfAgent::print_current_config
 #define MAX_LEN 100
+
+/* Helper function for printing events. */
+const char *ev_to_str(sr_event_t ev) 
+{
+    switch (ev) {
+    case SR_EV_CHANGE:
+        return "change";
+    case SR_EV_DONE:
+        return "done";
+    case SR_EV_ABORT:
+    default:
+        return "abort";
+    }
+}
+
 void print_current_config(sysrepo::S_Session session, const char *module_name)
 {
     char select_xpath[MAX_LEN];
@@ -256,6 +271,7 @@ bool NetConfAgent::initSysrepo( )
 
 bool NetConfAgent::fetchData(const string & xpath, map<string,string>&mapFromFetch)
 {
+    //cout << "called fetch data " << endl;
     try
     {
        libyang::S_Data_Node data = _session->get_data(xpath.c_str());
@@ -290,23 +306,22 @@ bool NetConfAgent::fetchData(const string & xpath, map<string,string>&mapFromFet
 return true;
 }
 
-bool NetConfAgent::subscriberForModelChanges(const string &module_name)
+bool NetConfAgent::subscriberForModelChanges(const string &module_name,nsMobileClient::MobileClient &mobClient,
+                                            const string &xpath )
 {
+     
     try
     {
         /* subscribe for changes in running config */
-         auto cb = [] (sysrepo::S_Session m_Session, const char *module_name, const char *xpath, sr_event_t event,
-        uint32_t request_id) 
+         auto cb = [&mobClient] (sysrepo::S_Session sess, const char *module_name, 
+         const char *xpath, sr_event_t event,  uint32_t request_id) 
         {
-            cout<< "called subscribers for model changes cb" << endl;
+            mobClient.handleModuleChange();
             return SR_ERR_OK;
         };   
-      
-        _subscribe->module_change_subscribe(module_name.c_str(), cb);
 
-        /* read running config */
-        cout << "\n\n ========== READING RUNNING CONFIG: ==========\n" << endl;
-        print_current_config(_session, module_name.c_str());
+        _subscribe->module_change_subscribe(module_name.c_str(), cb,xpath.c_str());
+
     }
     catch(const std::exception& e)
     {
@@ -324,9 +339,9 @@ nsMobileClient::MobileClient &mobClient)
      
         try
         {
-           
-            auto cb = [&mobClient,xpath] (sysrepo::S_Session session, const char *module_name, const char *path, const char *request_xpath,
-            uint32_t request_id, libyang::S_Data_Node &parent) 
+            auto cb = [&mobClient,xpath] (sysrepo::S_Session session, const char *module_name, 
+            const char *path, const char *request_xpath, uint32_t request_id,
+            libyang::S_Data_Node &parent) 
             {
                 cout << "\n\n ========== registerOperData " << endl;
                 string name;
@@ -341,7 +356,6 @@ nsMobileClient::MobileClient &mobClient)
                 
                 return SR_ERR_OK;
             };
-            /////&client
             _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, xpath.c_str());
         }
         catch(const std::exception& e)
@@ -350,9 +364,7 @@ nsMobileClient::MobileClient &mobClient)
             return false;
         }
        
-        
-        
-    return true;
+return true;
 }
 bool NetConfAgent::subscriberForRpc(const string &module_name)
 {
@@ -422,7 +434,9 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
     try
     {
-        cout << "called changeData" <<endl;
+    
+        cout <<"changeDAta path -----" <<  setData.first << endl ;
+
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
     }
