@@ -7,6 +7,9 @@
  {
    const string MODULE_NAME = "mobile-network";
    const string PATH = "/mobile-network:core/subscribers[number='";
+   const string BUSY = "busy";
+   const string ACTIVE = "active";
+   const string IDLE = "idle";
  }
 
  namespace nsMobileClient
@@ -40,7 +43,7 @@ void MobileClient::handleModuleChange()
     }
     
       cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
-
+      cout << "incoming number " << it->second <<endl;
   }
   
 }
@@ -55,6 +58,9 @@ void MobileClient::handleModuleChange()
 
   setNumber(number);
   setName(name);
+  
+  const string path = PATH +  _number + "']";
+  _netConfAgent->registerOperData(MODULE_NAME,path,*this); 
   
   //set state - idle
   const string pathCh = PATH +  _number + "']" + "/state";
@@ -79,15 +85,14 @@ void MobileClient::handleModuleChange()
 
 void MobileClient::handleOperData(string &name)
 {
- cout << " called handleOperData" << endl;
+ //cout << " called handleOperData" << endl;
  name = _name;
 }
 
 void MobileClient::setName(const string &name)
 {
   _name = name;
-  const string path = PATH +  _number + "']";
-  _netConfAgent->registerOperData(MODULE_NAME,path,*this); 
+  
 }
 void MobileClient::setNumber(const string &number)
 {
@@ -104,16 +109,77 @@ void MobileClient::setIncomigNumber(const string &number)
 
 void  MobileClient::makeCall(const string &number)
 {
+  //set status busy
+  const string pathCh = PATH +  _number + "']" + "/state";
+ // cout << "called make call " << pathCh <<  endl;
+  const pair<string,string> setData = make_pair(pathCh,BUSY);
+  _netConfAgent->changeData(setData);
+
+  
+  map<string, string>dataForFetch;
+  string pathFetch = PATH +  number + "']";
+  _netConfAgent->fetchData(pathFetch, dataForFetch);
+
+  for (map<string,string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
+   {
+    if (it->first != pathFetch + "/state")
+    {
+      continue;
+    }
+    //if busy return client is making call without talk
+     if (it->second == BUSY)
+    {
+      cout << "client is busy now" << endl;
+      const pair<string,string> setData = make_pair(pathCh,IDLE);
+      _netConfAgent->changeData(setData);
+      
+    } 
+    //if active client is talking to
+    else if (it->second == ACTIVE)
+    {
+      cout << "client is talking" << endl;
+       const pair<string,string> setData = make_pair(pathCh,IDLE);
+      _netConfAgent->changeData(setData);
+    }
+    else if (it->second == IDLE)
+    {
+      //if idle set 
+      setIncomigNumber(number);
+      
+    }
+    //cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
+  }
     
-  //if idle set 
-  //if busy return client is making call without talk
-  //if active client is talking to 
-    setIncomigNumber(number);
+}
+void  MobileClient::answer()
+{
+  map<string, string>dataForFetch;
+  string pathFetch = PATH +  _number + "']";
+  _netConfAgent->fetchData(pathFetch, dataForFetch);
+  string incomingNumber;
+
+  for (map<string,string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
+   {
+    if (it->first != pathFetch + "/incomingNumber" )
+    {
+      continue;
+    }
+    incomingNumber = it->second;
+    cout << incomingNumber <<endl;
+   }
+   //set status 
+      const string pathCh = PATH +  _number + "']" + "/state";
+      const pair<string,string> setData = make_pair(pathCh,ACTIVE);
+      _netConfAgent->changeData(setData);
+       // set status incoming 
+       const string pathChincoming = PATH +  incomingNumber + "']" + "/state";
+       const pair<string,string> setDataOutgoing = make_pair(pathChincoming,ACTIVE);
+       _netConfAgent->changeData(setDataOutgoing );
 }
 
-void  MobileClient::setState(const string &state)
+void  MobileClient::setState(const pair<string,string> &setData)
 {
-  
+  cout << "called set state" << endl;
 }
 
 

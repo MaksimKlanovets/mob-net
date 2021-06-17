@@ -335,7 +335,7 @@ bool NetConfAgent::subscriberForModelChanges(const string &module_name,nsMobileC
 bool NetConfAgent::registerOperData( const string &module_name, const string &xpath ,
 nsMobileClient::MobileClient &mobClient)
 {
-    cout << "Application will provide data of " << module_name << endl;
+    //cout << "Application will provide data of " << module_name << endl;
      
         try
         {
@@ -343,7 +343,7 @@ nsMobileClient::MobileClient &mobClient)
             const char *path, const char *request_xpath, uint32_t request_id,
             libyang::S_Data_Node &parent) 
             {
-                cout << "\n\n ========== registerOperData " << endl;
+               // cout << "\n\n ========== registerOperData " << endl;
                 string name;
                 mobClient.handleOperData(name);
 
@@ -351,7 +351,7 @@ nsMobileClient::MobileClient &mobClient)
                  libyang::S_Module mod = ctx->get_module(module_name);
                  string pathUserName = xpath + "/userName";
                  
-                cout << pathUserName <<endl;
+               // cout << pathUserName <<endl;
                 parent->new_path(ctx,pathUserName.c_str(), name.c_str(),LYD_ANYDATA_CONSTSTRING, 0);
                 
                 return SR_ERR_OK;
@@ -434,8 +434,7 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
     try
     {
-    
-        cout <<"changeDAta path -----" <<  setData.first << endl ;
+        //cout <<"changeDAta path -----" <<  setData.first << endl ;
 
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
