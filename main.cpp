@@ -166,7 +166,7 @@ my_map.emplace("callEnd", [&tempComand,&tempArg,&isReg,&mobileClient]()
 { 
      if (cNoArg(tempComand,tempArg) && isReg)
     {
-        //without test
+        mobileClient.callEnd();
     }
 });
 my_map.emplace("exit", []() 

@@ -27,7 +27,7 @@
 
 void MobileClient::handleModuleChange()
 {
-  cout << "called handleModuleChange" << endl;
+  //cout << "called handleModuleChange" << endl;
   string pathCh = PATH +  _number + "']/incomingNumber";
   //cout << "path ____________"<<pathCh << endl;
   map<string, string>dataForFetch;
@@ -41,8 +41,7 @@ void MobileClient::handleModuleChange()
     {
       continue;
     }
-    
-      cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
+    //  cout << "key->  " << it->first << "\n" << "value->  " << it->second <<endl;
       cout << "incoming number " << it->second <<endl;
   }
   
@@ -165,16 +164,56 @@ void  MobileClient::answer()
       continue;
     }
     incomingNumber = it->second;
+    
     cout << incomingNumber <<endl;
    }
    //set status 
-      const string pathCh = PATH +  _number + "']" + "/state";
-      const pair<string,string> setData = make_pair(pathCh,ACTIVE);
-      _netConfAgent->changeData(setData);
-       // set status incoming 
-       const string pathChincoming = PATH +  incomingNumber + "']" + "/state";
-       const pair<string,string> setDataOutgoing = make_pair(pathChincoming,ACTIVE);
-       _netConfAgent->changeData(setDataOutgoing );
+  const string pathCh = PATH +  _number + "']" + "/state";
+  const pair<string,string> setData = make_pair(pathCh,ACTIVE);
+  _netConfAgent->changeData(setData);
+  // set status incoming 
+  const string pathChincoming = PATH +  incomingNumber + "']" + "/state";
+  const pair<string,string> setDataOutgoing = make_pair(pathChincoming,ACTIVE);
+  _netConfAgent->changeData(setDataOutgoing );
+
+  //how to exclede it?  
+  //it's needs in order to find second side in func callEnd[incoming number] change state it both of them 
+  //set the incoming number to the caller
+  const string pathChIncomCaller = PATH +  incomingNumber + "']" + "/incomingNumber";
+  //cout << "path for incom"<< pathChIncomCaller << endl;
+  const pair<string,string> IncomCaller = make_pair(pathChIncomCaller,_number);
+  _netConfAgent->changeData(IncomCaller);
+}
+
+void MobileClient::callEnd()
+{
+//change status in both /wipe out incoming numbers 
+ map<string, string>dataForFetch;
+  string pathFetch = PATH +  _number + "']";
+  _netConfAgent->fetchData(pathFetch, dataForFetch);
+  string incomingNumber;
+
+  for (map<string,string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
+   {
+    if (it->first != pathFetch + "/incomingNumber" )
+    {
+      continue;
+    }
+    incomingNumber = it->second;
+    
+    cout << incomingNumber <<endl;
+   }
+   
+  //set status 
+  const string pathCh = PATH +  _number + "']" + "/state";
+  const pair<string,string> setData = make_pair(pathCh,IDLE);
+  _netConfAgent->changeData(setData);
+  // set status incoming 
+  const string pathChincoming = PATH +  incomingNumber + "']" + "/state";
+  const pair<string,string> setDataOutgoing = make_pair(pathChincoming,IDLE);
+  _netConfAgent->changeData(setDataOutgoing );
+  
+ //how to wipe inconmingNumbers out?
 }
 
 void  MobileClient::setState(const pair<string,string> &setData)
