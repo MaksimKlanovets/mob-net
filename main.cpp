@@ -127,7 +127,7 @@ my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
     if (cNoArg(tempComand,tempArg) && isReg)
     {
         //without test
-        mobileClient.~MobileClient();
+       // mobileClient.~MobileClient();
         cout << "registration was deleted" << endl;
     }
     
@@ -137,7 +137,6 @@ my_map.emplace("call", [&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cMustArg(tempComand,tempArg) && isReg)
     {
-        //without test
         mobileClient.makeCall(tempArg);
     }
     
@@ -146,27 +145,26 @@ my_map.emplace("name", [&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cMustArg(tempComand,tempArg) && isReg)
     {
-        //without test
         mobileClient.setName(tempArg);
     }
 });
 my_map.emplace("answer", [&tempComand,&tempArg,&isReg,&mobileClient]() 
 { 
-    if (cMustArg(tempComand,tempArg) && isReg)
+    if (cNoArg(tempComand,tempArg) && isReg)
     {
-        //without test
+        mobileClient.answer();
     }
 });
 my_map.emplace("reject", [&tempComand,&tempArg,&isReg,&mobileClient]() 
 { 
-     if (cMustArg(tempComand,tempArg) && isReg)
+     if (cNoArg(tempComand,tempArg) && isReg)
     {
         //without test
     }
 });
 my_map.emplace("callEnd", [&tempComand,&tempArg,&isReg,&mobileClient]() 
 { 
-     if (cMustArg(tempComand,tempArg) && isReg)
+     if (cNoArg(tempComand,tempArg) && isReg)
     {
         //without test
     }
