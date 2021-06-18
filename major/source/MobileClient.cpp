@@ -10,6 +10,13 @@ namespace
   const string BUSY = "busy";
   const string ACTIVE = "active";
   const string IDLE = "idle";
+  const string PATH_INC_NUM = "/incomingNumber";
+  const string PATH_STATE = "/state";
+  
+  string createPath(const string& key,const string& suffix = "" )
+  {
+    return PATH + key + "']" + suffix;
+  }
 }
 
 namespace nsMobileClient
@@ -25,86 +32,48 @@ namespace nsMobileClient
   {
   }
 
-  void MobileClient::handleModuleChange() //incoming num
+  void MobileClient::handleModuleChange(const string& state,const string& incomNum, const string& incomState  ) //incoming num
   {
     //cout << "called handleModuleChange" << endl;
-    string pathCh = PATH + _number + "']";
-    //cout << "path ____________"<<pathCh << endl;
-    map<string, string> dataForFetch;
-    _netConfAgent->fetchData(pathCh, dataForFetch);
-    string state{};
-    string incomNum{};
-    string incomState{};
-    bool inc = false;
-    for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
-    {
-
-      if (it->first == pathCh + "/state")
-      {
-        state = it->second;
-        //  cout << "stame main" << state << it->first << endl;
-      }
-      if (it->first == pathCh + "/incomingNumber")
-      {
-        inc = true;
-        incomNum = it->second;
-        cout << "incomnum->" << incomNum << endl;
-        string pathChInc = PATH + incomNum + "']";
-        map<string, string> dataForFetchInc;
-        _netConfAgent->fetchData(pathChInc, dataForFetchInc);
-        for (map<string, string>::const_iterator it = dataForFetchInc.begin(); it != dataForFetchInc.end(); it++)
-        {
-          if (it->first == pathChInc + "/state")
-          {
-            incomState = it->second;
-            cout << "found state inc " << it->second << endl;
-          }
-        }
-      }
-    }
-
-    if (incomState == BUSY && inc && state == IDLE)
+    if (incomState == BUSY && !incomNum.empty() && state == IDLE)
     {
       cout << "incoming number " << incomNum << endl;
     }
-
     else if (incomState == ACTIVE && state == ACTIVE)
     {
       cout << "call end" << endl;
     }
-    else if (state == IDLE && inc && incomState == IDLE)
+    else if (state == IDLE && !incomNum.empty() && incomState == IDLE)
     {
       cout << "reject" << endl;
     }
   }
 
-  bool MobileClient::registerClient(const string &name, const string &number)
+  bool MobileClient::registerClient(const string &name)
   {
-
-    cout << "called registerClient" << endl;
-
     _netConfAgent = make_shared<ns_NetConf::NetConfAgent>();
-    _netConfAgent->initSysrepo();
-
-    setNumber(number);
+    
+    if (!_netConfAgent->initSysrepo())
+    {
+      cout << "something with connection" << endl;
+    }
+    
     setName(name);
-
-    const string path = PATH + _number + "']";
-    _netConfAgent->registerOperData(MODULE_NAME, path, *this);
-
-    //set state - idle
     setState(_number, IDLE);
 
-    const string pathForSubs = PATH + _number + "']" + "/incomingNumber";
-    _netConfAgent->subscriberForModelChanges(MODULE_NAME, *this, pathForSubs);
+    if (!_netConfAgent->registerOperData(MODULE_NAME, createPath(_number), *this) ||
+    !_netConfAgent->subscriberForModelChanges(MODULE_NAME, *this, createPath(_number,PATH_INC_NUM)))
+    {
+      return false;
+    }
+    
+    cout << "registration completed" << endl;
 
-    cout << "register end" << endl;
     return true;
   }
 
   void MobileClient::handleOperData(string &name)
   {
-    //cout << " called handleOperData" << endl;
     name = _name;
   }
 
@@ -185,7 +154,7 @@ namespace nsMobileClient
       }
       incomingNumber = it->second;
 
-      cout << incomingNumber << endl;
+     // cout << incomingNumber << endl;
       setIncomigNumber(incomingNumber);
     }
     //set status
@@ -239,7 +208,7 @@ namespace nsMobileClient
 
   void MobileClient::reject()
   {
-    cout << "called reject" << endl;
+    //cout << "called reject" << endl;
     string pathCh = PATH + _number + "']";
     map<string, string> dataForFetch;
     _netConfAgent->fetchData(pathCh, dataForFetch);
@@ -262,7 +231,7 @@ namespace nsMobileClient
     _netConfAgent->deleteItem(pathDelItem1);
     _netConfAgent->deleteItem(pathDelItem);
 
-    cout << "incom num" << incomingNumber;
+   // cout << "incom num" << incomingNumber;
   }
 
   void MobileClient::unregister()
@@ -271,6 +240,10 @@ namespace nsMobileClient
     _netConfAgent->deleteItem(pathDelItem);
 
     _netConfAgent->~NetConfAgent();
+  }
+  string MobileClient::getNumber()
+  {
+    return _number;
   }
 
 }
