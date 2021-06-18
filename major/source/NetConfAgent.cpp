@@ -271,7 +271,7 @@ bool NetConfAgent::initSysrepo( )
 
 bool NetConfAgent::fetchData(const string & xpath, map<string,string>&mapFromFetch)
 {
-    //cout << "called fetch data " << endl;
+   // cout << "called fetch data " << endl;
     try
     {
        libyang::S_Data_Node data = _session->get_data(xpath.c_str());
@@ -429,12 +429,12 @@ bool NetConfAgent::notifySysrepo(const string &module_name)
         return -1;
     }
 }
-
+//must to decide add or delete user 
 bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
     try
     {
-        //cout <<"changeDAta path -----" <<  setData.first << endl ;
+        // cout <<"changeDAta path -----" <<  setData.first << endl ;
 
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
@@ -447,6 +447,23 @@ bool NetConfAgent::changeData(const pair<string,string> &setData)
     
     return true;
 
+}
+
+bool NetConfAgent::deleteItem(const string &path)
+{
+    try
+    {
+       // cout <<"called deleteItem" << endl;
+        _session->delete_item(path.c_str());
+         _session->apply_changes();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
+    
+    return true;
 }
 
 }

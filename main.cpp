@@ -88,9 +88,9 @@ const vector<string> m_com
     "register [name] - User registration ",
     "unregister - delete registration ",
     "callEnd - end the incoming call ",
-    "name [name] - change name or set ", 
-    "reject - from active to idle ",
+    "reject - cancel incoming call ",
     "call [phoneNumber] - call to ",
+    "name [name] - change name ", 
     "answer - take the call ",
     "help",
     "exit"
@@ -126,8 +126,7 @@ my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cNoArg(tempComand,tempArg) && isReg)
     {
-        //without test
-       // mobileClient.~MobileClient();
+        mobileClient.unregister();
         cout << "registration was deleted" << endl;
     }
     
@@ -159,7 +158,7 @@ my_map.emplace("reject", [&tempComand,&tempArg,&isReg,&mobileClient]()
 { 
      if (cNoArg(tempComand,tempArg) && isReg)
     {
-        //without test
+        mobileClient.reject();
     }
 });
 my_map.emplace("callEnd", [&tempComand,&tempArg,&isReg,&mobileClient]() 
