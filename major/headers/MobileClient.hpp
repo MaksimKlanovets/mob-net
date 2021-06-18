@@ -37,16 +37,18 @@ namespace nsMobileClient
 
       void handleNotification();
 
-      void setIncomigNumber(const string &number);
-      void setNumber(const string &number);
       void makeCall(const string &number); //change state
-      void setState(const string &number, const string &status);
       void setName(const string &name);
       void answer();
       void callEnd();
       void reject();
+      void unregister();
 
    private:
+      void setIncomigNumber(const string &number);
+      void setNumber(const string &number);
+      void setState(const string &number, const string &status);
+
       shared_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
       string _name;
       string _number;

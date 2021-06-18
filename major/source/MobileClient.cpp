@@ -42,7 +42,7 @@ namespace nsMobileClient
       if (it->first == pathCh + "/state")
       {
         state = it->second;
-      //  cout << "stame main" << state << it->first << endl;
+        //  cout << "stame main" << state << it->first << endl;
       }
       if (it->first == pathCh + "/incomingNumber")
       {
@@ -252,15 +252,25 @@ namespace nsMobileClient
         incomingNumber = it->second;
       }
     }
-    cout << "incom num" << incomingNumber;
-    setState(incomingNumber, IDLE);
 
     string pathDelItem1 = PATH + _number + "']/incomingNumber";
     string pathDelItem = PATH + incomingNumber + "']/incomingNumber";
 
+    setState(incomingNumber, IDLE);
+    setState(_number, IDLE);
 
     _netConfAgent->deleteItem(pathDelItem1);
     _netConfAgent->deleteItem(pathDelItem);
+
+    cout << "incom num" << incomingNumber;
+  }
+
+  void MobileClient::unregister()
+  {
+    string pathDelItem = PATH + _number + "']";
+    _netConfAgent->deleteItem(pathDelItem);
+
+    _netConfAgent->~NetConfAgent();
   }
 
 }

@@ -126,8 +126,7 @@ my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
 {
     if (cNoArg(tempComand,tempArg) && isReg)
     {
-        //without test
-       // mobileClient.~MobileClient();
+        mobileClient.unregister();
         cout << "registration was deleted" << endl;
     }
     

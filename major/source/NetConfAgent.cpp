@@ -429,12 +429,12 @@ bool NetConfAgent::notifySysrepo(const string &module_name)
         return -1;
     }
 }
-
+//must to decide add or delete user 
 bool NetConfAgent::changeData(const pair<string,string> &setData)
 {
     try
     {
-        //cout <<"changeDAta path -----" <<  setData.first << endl ;
+        // cout <<"changeDAta path -----" <<  setData.first << endl ;
 
         _session->set_item_str(setData.first.c_str(),setData.second.c_str());
         _session->apply_changes();
@@ -462,6 +462,7 @@ bool NetConfAgent::deleteItem(const string &path)
         std::cerr << e.what() << '\n';
         return false;
     }
+    
     return true;
 }
 
