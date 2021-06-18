@@ -80,7 +80,9 @@ public:
 *@return true if ok, otherwise false
 */
     //change data for a given path
-    bool changeData(const pair<string,string> &setData);
+bool changeData(const pair<string,string> &setData);
+
+bool deleteItem(const string &path);
 
 private:
     shared_ptr<sysrepo::Session> _session;
