@@ -7,6 +7,7 @@ using namespace std;
 namespace ns_NetConf
 {
    class NetConfAgent;
+   
 }
 
 namespace nsMobileClient
@@ -24,9 +25,9 @@ namespace nsMobileClient
  * @param name - user name. number user number
  * @return true if ok, otherwise false
  */
-      bool registerClient(const string &name, const string &number);
+      bool registerClient(const string &name);
 
-      void handleModuleChange(); //&mobileClient param/ lambda the same as registerOperData
+      void handleModuleChange(const string& state,const string& incomNum, const string& incomState ); //&mobileClient param/ lambda the same as registerOperData
       /**
  * @brief handle oper data    
  * @param name - set user name 
@@ -43,10 +44,11 @@ namespace nsMobileClient
       void callEnd();
       void reject();
       void unregister();
+      string getNumber();
+      void setNumber(const string &number);
 
    private:
       void setIncomigNumber(const string &number);
-      void setNumber(const string &number);
       void setState(const string &number, const string &status);
 
       shared_ptr<ns_NetConf::NetConfAgent> _netConfAgent;

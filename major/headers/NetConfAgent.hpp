@@ -9,6 +9,7 @@ using namespace std;
 namespace nsMobileClient
  {
      class MobileClient;
+     
  }
 
 
