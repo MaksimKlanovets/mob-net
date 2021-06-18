@@ -3,7 +3,6 @@
 #include <functional>
 #include <vector>
 #include <string>
-//#include "NetConfAgent.hpp"
 #include "MobileClient.hpp"
 #include <cstring>
 
@@ -55,7 +54,7 @@ namespace
     {
         if (!arg.empty()) 
         {
-            cout << "command-> " << com << "  Arg-> " << arg << endl;
+           // cout << "command-> " << com << "  Arg-> " << arg << endl;
             return true;
         }
         printErr(com);
@@ -66,7 +65,7 @@ namespace
     {
         if (arg.empty())
         {
-            cout << "command-> " << com  << endl;
+            //cout << "command-> " << com  << endl;
             return true;
         }
         printErr(com,1);
@@ -100,21 +99,29 @@ map<string,function<void()>> my_map;
  
 nsMobileClient::MobileClient mobileClient;
 
-my_map.emplace("help", [&m_com]() 
+string errorL{};
+
+my_map.emplace("help", [&]() 
 { 
     listCommands(m_com); 
 });
 //
-my_map.emplace("register",[&tempComand,&tempArg,&isReg,&mobileClient]()
+my_map.emplace("register",[&]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
     { 
         string number;
         cout << "input your phone number" <<endl;
         cin >>number;
-        mobileClient.registerClient(tempArg, number);
-       
-       isReg = true;
+        if (!mobileClient.registerClient(tempArg))
+        {
+            errorL =  "register is done with error";
+            return ;
+        }
+        
+        mobileClient.setNumber(number);
+      
+        isReg = true;
 
     }
     else if (isReg)
@@ -122,7 +129,7 @@ my_map.emplace("register",[&tempComand,&tempArg,&isReg,&mobileClient]()
         cout << "Only one registration" << endl;
     }
 });
-my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
+my_map.emplace("unregister",[&]()
 {
     if (cNoArg(tempComand,tempArg) && isReg)
     {
@@ -132,7 +139,7 @@ my_map.emplace("unregister",[&tempComand,&tempArg,&isReg,&mobileClient]()
     
     isReg = false;
 });
-my_map.emplace("call", [&tempComand,&tempArg,&isReg,&mobileClient]() 
+my_map.emplace("call", [&]() 
 {
     if (cMustArg(tempComand,tempArg) && isReg)
     {
@@ -140,28 +147,28 @@ my_map.emplace("call", [&tempComand,&tempArg,&isReg,&mobileClient]()
     }
     
 });
-my_map.emplace("name", [&tempComand,&tempArg,&isReg,&mobileClient]() 
+my_map.emplace("name", [&]() 
 {
     if (cMustArg(tempComand,tempArg) && isReg)
     {
         mobileClient.setName(tempArg);
     }
 });
-my_map.emplace("answer", [&tempComand,&tempArg,&isReg,&mobileClient]() 
+my_map.emplace("answer", [&]() 
 { 
     if (cNoArg(tempComand,tempArg) && isReg)
     {
         mobileClient.answer();
     }
 });
-my_map.emplace("reject", [&tempComand,&tempArg,&isReg,&mobileClient]() 
+my_map.emplace("reject", [&]() 
 { 
      if (cNoArg(tempComand,tempArg) && isReg)
     {
         mobileClient.reject();
     }
 });
-my_map.emplace("callEnd", [&tempComand,&tempArg,&isReg,&mobileClient]() 
+my_map.emplace("callEnd", [&]() 
 { 
      if (cNoArg(tempComand,tempArg) && isReg)
     {
@@ -172,9 +179,9 @@ my_map.emplace("exit", []()
 { 
     //can call isReg
     cout <<"Exit" <<endl;
-    return 0;
+    
 });
-
+cout << "Program is working. input help for list commands" <<endl;
 while (true)
 {
     resetData(tempComand,tempArg);
@@ -185,7 +192,15 @@ while (true)
     {
         if (it->first != "exit")
         {
-           it->second(); 
+
+        it->second(); 
+
+        if (!errorL.empty())
+        {
+            cout << errorL << endl;
+            errorL.clear();
+        }
+        
            continue;
         }
         break;
