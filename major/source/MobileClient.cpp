@@ -1,4 +1,3 @@
-
 #include "MobileClient.hpp"
 
 using namespace std;
@@ -122,8 +121,7 @@ namespace nsMobileClient
         {
           setIncomigNumber(number);
 
-          _netConfAgent->changeData(setData1);
-          // cout << "set Incoming number" << endl;
+          setIncomigNumber(_number);
         }
         else
         {
@@ -205,8 +203,8 @@ namespace nsMobileClient
       }
     }
 
-    setState(createPath(incomingNumber, PATH_INC_NUM), IDLE);
-    setState(createPath(_number, PATH_INC_NUM), IDLE);
+    setState(incomingNumber, IDLE);
+    setState(_number,IDLE);
 
     _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
     _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
