@@ -113,13 +113,14 @@ my_map.emplace("register",[&]()
         string number;
         cout << "input your phone number" <<endl;
         cin >>number;
+        mobileClient.setNumber(number);
         if (!mobileClient.registerClient(tempArg))
         {
             errorL =  "register is done with error";
             return ;
         }
         
-        mobileClient.setNumber(number);
+        
       
         isReg = true;
 
