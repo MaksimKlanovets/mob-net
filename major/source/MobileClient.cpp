@@ -49,6 +49,7 @@ namespace nsMobileClient
     {
       cout << "reject" << endl;
     }
+    
   }
 
   bool MobileClient::registerClient(const string &name)

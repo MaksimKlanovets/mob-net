@@ -350,7 +350,6 @@ namespace ns_NetConf
                         }
                     }
                 }
-
                 mobClient.handleModuleChange(state, incomNum, incomState);
                 return SR_ERR_OK;
             };
