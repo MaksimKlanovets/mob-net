@@ -1,5 +1,4 @@
 #include "MobileClient.hpp"
-
 using namespace std;
 
 namespace
