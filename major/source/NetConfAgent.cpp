@@ -276,12 +276,10 @@ namespace ns_NetConf
 
     bool NetConfAgent::fetchData(const string &xpath, map<string, string> &mapFromFetch)
     {
-        // cout << "called fetch data " << endl;
         try
         {
             libyang::S_Data_Node data = _session->get_data(xpath.c_str());
 
-            /* go through all top-level siblings */
             for (libyang::S_Data_Node &root : data->tree_for())
             {
                 for (libyang::S_Data_Node &node : root->tree_dfs())
@@ -313,7 +311,6 @@ namespace ns_NetConf
     bool NetConfAgent::subscriberForModelChanges(const string &module_name, nsMobileClient::MobileClient &mobClient,
                                                  const string &xpath)
     {
-
         try
         {
             /* subscribe for changes in running config */
@@ -321,19 +318,18 @@ namespace ns_NetConf
                           const char *xpath, sr_event_t event, uint32_t request_id)
             {
                 const string pathM = "/mobile-network:core/subscribers[number='";
-                //pass map to handleModuleChange // fetch here//throw chanhes
                 string pathCh = pathM + mobClient.getNumber() + "']";
                 map<string, string> dataForFetch;
                 fetchData(pathCh, dataForFetch);
                 string state{};
                 string incomNum{};
                 string incomState{};
+
                 for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                 {
                      if (it->first == pathCh + "/state")
                     {
                         state = it->second;
-                        //  cout << "stame main" << state << it->first << endl;
                     }
                     if (it->first == pathCh + "/incomingNumber")
                     {
@@ -342,16 +338,15 @@ namespace ns_NetConf
                 }
                 if (!incomNum.empty())
                 {
-                    //cout << "incomnum->" << incomNum << endl;
                     string pathChInc = pathM + incomNum + "']";
                     dataForFetch.clear();
                     fetchData(pathChInc, dataForFetch);
+
                     for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                     {
                         if (it->first == pathChInc + "/state")
                         {
                             incomState = it->second;
-                            //cout << "found state inc " << it->second << endl;
                         }
                     }
                 }
@@ -373,15 +368,12 @@ namespace ns_NetConf
     bool NetConfAgent::registerOperData(const string &module_name, const string &xpath,
                                         nsMobileClient::MobileClient &mobClient)
     {
-        //cout << "Application will provide data of " << module_name << endl;
-
         try
         {
             auto cb = [&mobClient, xpath](sysrepo::S_Session session, const char *module_name,
                                           const char *path, const char *request_xpath, uint32_t request_id,
                                           libyang::S_Data_Node &parent)
             {
-                // cout << "\n\n ========== registerOperData " << endl;
                 string name;
                 mobClient.handleOperData(name);
 
@@ -389,7 +381,6 @@ namespace ns_NetConf
                 libyang::S_Module mod = ctx->get_module(module_name);
                 string pathUserName = xpath + "/userName";
 
-                // cout << pathUserName <<endl;
                 parent->new_path(ctx, pathUserName.c_str(), name.c_str(), LYD_ANYDATA_CONSTSTRING, 0);
 
                 return SR_ERR_OK;
@@ -472,13 +463,10 @@ namespace ns_NetConf
             return -1;
         }
     }
-    //must to decide add or delete user
     bool NetConfAgent::changeData(const pair<string, string> &setData)
     {
         try
         {
-            // cout <<"changeDAta path -----" <<  setData.first << endl ;
-
             _session->set_item_str(setData.first.c_str(), setData.second.c_str());
             _session->apply_changes();
         }
@@ -495,7 +483,6 @@ namespace ns_NetConf
     {
         try
         {
-            // cout <<"called deleteItem" << endl;
             _session->delete_item(path.c_str());
             _session->apply_changes();
         }
