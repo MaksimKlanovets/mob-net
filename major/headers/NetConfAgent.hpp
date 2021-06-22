@@ -1,34 +1,31 @@
-#pragma once 
+#pragma once
 
 #include "libsysrepocpp/headers/Session.hpp"
-
-
 
 using namespace std;
 
 namespace nsMobileClient
- {
-     class MobileClient;
-     
- }
+{
+    class MobileClient;
 
+}
 
 namespace ns_NetConf
 {
 
-class NetConfAgent
-{
-public:
-    NetConfAgent();
-    ~NetConfAgent();
-    
-/** 
+    class NetConfAgent
+    {
+    public:
+        NetConfAgent();
+        ~NetConfAgent();
+
+        /** 
 * @brief initialization Sysrepo. 
 *
 *@return true if ok, otherwise false
 */
-    bool initSysrepo( );
-/** 
+        bool initSysrepo();
+        /** 
 * @brief fetching data from  a given path
 *
 *@param name xpath - path for fetching. 
@@ -37,17 +34,17 @@ public:
 *
 *@return true if ok, otherwise false
 */
-    bool fetchData(const string & xpath, map<string,string>&mapFromFetch);
-/** 
+        bool fetchData(const string &xpath, map<string, string> &mapFromFetch);
+        /** 
 * @brief  Subscribe for model Changes
 *
 *@param name Module name for subscribe
 *
 *@return true if ok, otherwise false
 */
-    bool subscriberForModelChanges(const string &module_name,nsMobileClient::MobileClient &mobClient,
-                                    const string &xpath   );
-/** 
+        bool subscriberForModelChanges(const string &module_name, nsMobileClient::MobileClient &mobClient,
+                                       const string &xpath);
+        /** 
 * @brief set noconfig data - username;
 *
 *@param name module_name - name of module.
@@ -55,41 +52,46 @@ public:
 *
 *@return true if ok, otherwise false
 */
-    bool registerOperData( const string &module_name, const string &xpath,
-    nsMobileClient::MobileClient &mobClient);
-/** 
+        bool registerOperData(const string &module_name, const string &xpath,
+                              nsMobileClient::MobileClient &mobClient);
+        /** 
 * @brief subscribe For Rpc/ call back for rpc message
 *
 *@param name Module name.
 *
 *@return true if ok, otherwise false
 */
-    bool subscriberForRpc(const string &module_name);
-/** 
+        bool subscriberForRpc(const string &module_name);
+        /** 
 * @brief notifySysrepo - notifications Sysrepo
 *
 *@param name Module name.
 *
 *@return true if ok, otherwise false
 */
-    bool notifySysrepo(const string &module_name);
-/** 
+        bool notifySysrepo(const string &module_name);
+        /** 
 * @brief changeData - change data 
 *
 *@param name setData - set data. First arg path/second value
 *
 *@return true if ok, otherwise false
 */
-    //change data for a given path
-bool changeData(const pair<string,string> &setData);
+        bool changeData(const pair<string, string> &setData);
+        /** 
+* @brief delete item 
+*
+*@param path path to delete.
+*
+*@return true if ok, otherwise false
+*/
+        bool deleteItem(const string &path);
 
-bool deleteItem(const string &path);
-
-private:
-    shared_ptr<sysrepo::Session> _session;
-    shared_ptr<sysrepo::Subscribe> _subscribe;
-    shared_ptr<sysrepo::Connection> _connection;
+    private:
     
-};
+        shared_ptr<sysrepo::Session> _session;
+        shared_ptr<sysrepo::Subscribe> _subscribe;
+        shared_ptr<sysrepo::Connection> _connection;
+    };
 
 }
