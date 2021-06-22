@@ -119,9 +119,6 @@ my_map.emplace("register",[&]()
             errorL =  "register is done with error";
             return ;
         }
-        
-        
-      
         isReg = true;
 
     }

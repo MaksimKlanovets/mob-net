@@ -355,7 +355,7 @@ namespace ns_NetConf
                 return SR_ERR_OK;
             };
 
-            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str());
+            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str(),0,SR_SUBSCR_DONE_ONLY);
         }
         catch (const std::exception &e)
         {

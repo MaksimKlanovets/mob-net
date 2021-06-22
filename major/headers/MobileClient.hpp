@@ -90,7 +90,7 @@ namespace nsMobileClient
  * @param number for set 
  */
       void setNumber(const string &number);
-
+void setOutNUm(const string& outNum);
    private:
 
       /**
@@ -110,6 +110,7 @@ namespace nsMobileClient
       shared_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
       string _name;
       string _number;
+      string _outNum;
    };
 
 }
