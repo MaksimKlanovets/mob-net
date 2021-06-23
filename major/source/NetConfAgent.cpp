@@ -280,23 +280,30 @@ namespace ns_NetConf
         {
             libyang::S_Data_Node data = _session->get_data(xpath.c_str());
 
-            for (libyang::S_Data_Node &root : data->tree_for())
+            if (data != nullptr)
             {
-                for (libyang::S_Data_Node &node : root->tree_dfs())
+                for (libyang::S_Data_Node &root : data->tree_for())
                 {
-                    libyang::S_Schema_Node schema = node->schema();
+                    for (libyang::S_Data_Node &node : root->tree_dfs())
+                    {
+                        libyang::S_Schema_Node schema = node->schema();
 
-                    switch (schema->nodetype())
-                    {
-                    case LYS_LEAF:
-                    {
-                        libyang::Data_Node_Leaf_List leaf(node);
-                        libyang::Schema_Node_Leaf sleaf(schema);
-                        mapFromFetch.emplace(make_pair(node->path(), string(leaf.value_str())));
-                        break;
-                    }
+                        switch (schema->nodetype())
+                        {
+                        case LYS_LEAF:
+                        {
+                            libyang::Data_Node_Leaf_List leaf(node);
+                            libyang::Schema_Node_Leaf sleaf(schema);
+                            mapFromFetch.emplace(make_pair(node->path(), string(leaf.value_str())));
+                            break;
+                        }
+                        }
                     }
                 }
+            }
+            else 
+            {
+                return false;
             }
         }
         catch (const std::exception &e)
@@ -465,8 +472,10 @@ namespace ns_NetConf
     }
     bool NetConfAgent::changeData(const pair<string, string> &setData)
     {
+
         try
         {
+            // SR_ERR_OPERATION_FAILED
             _session->set_item_str(setData.first.c_str(), setData.second.c_str());
             _session->apply_changes();
         }
@@ -483,7 +492,7 @@ namespace ns_NetConf
     {
         try
         {
-            _session->delete_item(path.c_str(),SR_DS_OPERATIONAL); 
+            _session->delete_item(path.c_str(), SR_DS_OPERATIONAL);
             _session->apply_changes();
         }
         catch (const std::exception &e)
@@ -494,6 +503,5 @@ namespace ns_NetConf
 
         return true;
     }
-  
 
 }

@@ -90,53 +90,54 @@ namespace nsMobileClient
     _number = number;
   }
 
-  bool MobileClient::setIncomigNumber(const string &number)
+  void MobileClient::setIncomigNumber(const string &number)
   {
     const pair<string, string> setData1 = make_pair(createPath(number, PATH_INC_NUM), _number);
-    if (_netConfAgent->changeData(setData1))
-    {
-      return true;
-      cout << "true" << endl;
-    }
-    else
-    {
-      cout << "false" << endl;
-      return false;
-    }
+
+    _netConfAgent->changeData(setData1);
+    
   }
 
   void MobileClient::makeCall(const string &number)
   {
-    setIncomigNumber(number);
 
-    map<string, string> dataForFetch;
+    map<string, string> dataFor;
 
-    const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
-    _netConfAgent->fetchData(createPath(number), dataForFetch);
-
-    for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
+    if (_netConfAgent->fetchData(createPath(number), dataFor) && number != _number)
     {
+      setIncomigNumber(number);
 
-      if (it->second == BUSY)
+      map<string, string> dataForFetch;
+
+      const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
+      _netConfAgent->fetchData(createPath(number), dataForFetch);
+
+      for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
       {
-        cout << "client is busy now" << endl;
-        const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
-        _netConfAgent->changeData(setData);
-      }
-      else if (it->second == ACTIVE)
-      {
-        cout << "client is talking" << endl;
-        _netConfAgent->changeData(setData);
-      }
-      else if (it->second == IDLE)
-      {
-        setOutNUm(number);
-        setState(_number, BUSY);
-        setState(number, BUSY);
+
+        if (it->second == BUSY)
+        {
+          cout << "client is busy now" << endl;
+          const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
+          _netConfAgent->changeData(setData);
+        }
+        else if (it->second == ACTIVE)
+        {
+          cout << "client is talking" << endl;
+          _netConfAgent->changeData(setData);
+        }
+        else if (it->second == IDLE)
+        {
+          setOutNUm(number);
+          setState(_number, BUSY);
+          setState(number, BUSY);
+        }
       }
     }
-
-    cout << "number does not exist" << endl;
+    else
+    {
+      cout << "number does not exist" << endl;
+    }
   }
   void MobileClient::answer()
   {

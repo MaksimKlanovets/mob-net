@@ -92,13 +92,14 @@ namespace nsMobileClient
           void setNumber(const string &number);
           void setOutNUm(const string &outNum);
           string getName();
+
      private:
           /**
  * @brief set whom we are calling, incoming number
  * 
  * @param number  number whom we are calling
  */
-          bool setIncomigNumber(const string &number);
+          void setIncomigNumber(const string &number);
           /**
  * @brief set state
  * 
