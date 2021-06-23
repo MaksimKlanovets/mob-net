@@ -327,7 +327,7 @@ namespace ns_NetConf
 
                 for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                 {
-                     if (it->first == pathCh + "/state")
+                    if (it->first == pathCh + "/state")
                     {
                         state = it->second;
                     }
@@ -355,7 +355,7 @@ namespace ns_NetConf
                 return SR_ERR_OK;
             };
 
-            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str(),0,SR_SUBSCR_DONE_ONLY);
+            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str(), 0, SR_SUBSCR_DONE_ONLY);
         }
         catch (const std::exception &e)
         {
@@ -483,7 +483,7 @@ namespace ns_NetConf
     {
         try
         {
-            _session->delete_item(path.c_str());
+            _session->delete_item(path.c_str(),SR_DS_OPERATIONAL); 
             _session->apply_changes();
         }
         catch (const std::exception &e)
@@ -494,5 +494,6 @@ namespace ns_NetConf
 
         return true;
     }
+  
 
 }

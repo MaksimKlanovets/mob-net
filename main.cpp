@@ -150,6 +150,7 @@ my_map.emplace("name", [&]()
     if (cMustArg(tempComand,tempArg) && isReg)
     {
         mobileClient.setName(tempArg);
+        cout << "name changed to " << mobileClient.getName() << endl;
     }
 });
 my_map.emplace("answer", [&]() 

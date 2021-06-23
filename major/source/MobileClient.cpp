@@ -33,7 +33,6 @@ namespace nsMobileClient
 
   void MobileClient::handleModuleChange(const string &state, const string &incomNum, const string &incomState) //incoming num
   {
-    //cout << "state->" << state << " incomNum->" << incomNum << " incState->" << incomState << "  " << _outNum << endl;
     if (state == BUSY && incomState == BUSY)
     {
       cout << "incoming number " << incomNum << endl;
@@ -91,10 +90,19 @@ namespace nsMobileClient
     _number = number;
   }
 
-  void MobileClient::setIncomigNumber(const string &number)
+  bool MobileClient::setIncomigNumber(const string &number)
   {
     const pair<string, string> setData1 = make_pair(createPath(number, PATH_INC_NUM), _number);
-    _netConfAgent->changeData(setData1);
+    if (_netConfAgent->changeData(setData1))
+    {
+      return true;
+      cout << "true" << endl;
+    }
+    else
+    {
+      cout << "false" << endl;
+      return false;
+    }
   }
 
   void MobileClient::makeCall(const string &number)
@@ -102,11 +110,13 @@ namespace nsMobileClient
     setIncomigNumber(number);
 
     map<string, string> dataForFetch;
-    _netConfAgent->fetchData(createPath(number), dataForFetch);
+
     const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
+    _netConfAgent->fetchData(createPath(number), dataForFetch);
 
     for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
     {
+
       if (it->second == BUSY)
       {
         cout << "client is busy now" << endl;
@@ -125,6 +135,8 @@ namespace nsMobileClient
         setState(number, BUSY);
       }
     }
+
+    cout << "number does not exist" << endl;
   }
   void MobileClient::answer()
   {
@@ -154,7 +166,6 @@ namespace nsMobileClient
     map<string, string> dataForFetch;
     string temp{_outNum};
     _outNum.clear();
-    cout << " _out " << _outNum << endl;
     _netConfAgent->fetchData(createPath(_number), dataForFetch);
     string incomingNumber = {};
     map<string, string>::const_iterator it = dataForFetch.begin();
@@ -218,7 +229,6 @@ namespace nsMobileClient
   void MobileClient::unregister()
   {
     _netConfAgent->deleteItem(createPath(_number));
-
     _netConfAgent->~NetConfAgent();
   }
 
@@ -229,5 +239,9 @@ namespace nsMobileClient
   void MobileClient::setOutNUm(const string &outNum)
   {
     _outNum = outNum;
+  }
+  string MobileClient::getName()
+  {
+    return _name;
   }
 }
