@@ -33,14 +33,24 @@ namespace nsMobileClient
 
   void MobileClient::handleModuleChange(const string &state, const string &incomNum, const string &incomState) //incoming num
   {
-    cout << "state->" << state << " incomNum->" << incomNum << " incState->" << incomState << endl;
+    //cout << "state->" << state << " incomNum->" << incomNum << " incState->" << incomState << "  " << _outNum << endl;
     if (state == BUSY && incomState == BUSY)
     {
       cout << "incoming number " << incomNum << endl;
     }
-    else if (state == IDLE )
+    else if (state == IDLE && !incomNum.empty() && incomState == IDLE ||
+             state == IDLE && !_outNum.empty() && incomNum.empty())
     {
-      cout << "reject called" << endl;
+      cout << "reject called " << endl;
+    }
+    else if (state == IDLE && incomNum.empty() ||
+             state == IDLE && !_outNum.empty() && !incomNum.empty())
+    {
+      cout << "callEnd called " << endl;
+    }
+    else if (state == ACTIVE)
+    {
+      cout << "answer called" << endl;
     }
   }
 
@@ -110,7 +120,6 @@ namespace nsMobileClient
       }
       else if (it->second == IDLE)
       {
-
         setOutNUm(number);
         setState(_number, BUSY);
         setState(number, BUSY);
@@ -118,61 +127,6 @@ namespace nsMobileClient
     }
   }
   void MobileClient::answer()
-  {
-    map<string, string> dataForFetch;
-
-    _netConfAgent->fetchData(createPath(_number), dataForFetch);
-    string incomingNumber;
-
-    for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
-    {
-      if (it->first != createPath(_number, PATH_INC_NUM))
-      {
-        continue;
-      }
-
-      incomingNumber = it->second;
-      cout << incomingNumber << endl;
-      _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
-      setState(_number, ACTIVE);
-      setIncomigNumber(incomingNumber);
-      setState(incomingNumber, ACTIVE);
-
-      break;
-    }
-  }
-
-  void MobileClient::callEnd()
-  {
-    map<string, string> dataForFetch;
-
-    _netConfAgent->fetchData(createPath(_number), dataForFetch);
-    string incomingNumber = {};
-
-    for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
-    {
-      if (it->first != createPath(_number, PATH_INC_NUM))
-      {
-        continue;
-      }
-
-      incomingNumber = it->second;
-      _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
-      _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
-      setState(_number, IDLE);
-      setState(incomingNumber, IDLE);
-      break;
-    }
-  }
-
-  void MobileClient::setState(const string &number, const string &status)
-  {
-    // cout << "----" << createPath(number, PATH_STATE) << endl;
-    const pair<string, string> setData = make_pair(createPath(number, PATH_STATE), status);
-    _netConfAgent->changeData(setData);
-  }
-
-  void MobileClient::reject()
   {
     map<string, string> dataForFetch;
 
@@ -187,20 +141,78 @@ namespace nsMobileClient
       }
 
       incomingNumber = it->second;
-      cout << "incomingNumber" << incomingNumber << endl;
+      cout << incomingNumber << endl;
+      setState(_number, ACTIVE);
+      setState(incomingNumber, ACTIVE);
+
+      break;
+    }
+  }
+
+  void MobileClient::callEnd()
+  {
+    map<string, string> dataForFetch;
+    string temp{_outNum};
+    _outNum.clear();
+    cout << " _out " << _outNum << endl;
+    _netConfAgent->fetchData(createPath(_number), dataForFetch);
+    string incomingNumber = {};
+    map<string, string>::const_iterator it = dataForFetch.begin();
+    for (it; it != dataForFetch.end(); it++)
+    {
+      if (it->first != createPath(_number, PATH_INC_NUM))
+      {
+        continue;
+      }
+
+      incomingNumber = it->second;
+      setIncomigNumber(incomingNumber);
+      _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
       setState(incomingNumber, IDLE);
+      _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
       setState(_number, IDLE);
 
-      _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
       break;
     }
     if (it == dataForFetch.end())
     {
-      cout << "2   " << _outNum << endl;
+      _netConfAgent->deleteItem(createPath(temp, PATH_INC_NUM));
+      setState(temp, IDLE);
+      setState(_number, IDLE);
+    }
+  }
+
+  void MobileClient::setState(const string &number, const string &status)
+  {
+    const pair<string, string> setData = make_pair(createPath(number, PATH_STATE), status);
+    _netConfAgent->changeData(setData);
+  }
+
+  void MobileClient::reject()
+  {
+    map<string, string> dataForFetch;
+    _netConfAgent->fetchData(createPath(_number), dataForFetch);
+    string incomingNumber;
+    map<string, string>::const_iterator it = dataForFetch.begin();
+    for (it; it != dataForFetch.end(); it++)
+    {
+      if (it->first != createPath(_number, PATH_INC_NUM))
+      {
+        continue;
+      }
+
+      incomingNumber = it->second;
+      setState(incomingNumber, IDLE);
+      setState(_number, IDLE);
+      _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
+
+      break;
+    }
+    if (it == dataForFetch.end())
+    {
       setState(_number, IDLE);
       setState(_outNum, IDLE);
-
-      _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
+      _netConfAgent->deleteItem(createPath(_outNum, PATH_INC_NUM));
     }
   }
   void MobileClient::unregister()
