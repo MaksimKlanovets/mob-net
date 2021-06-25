@@ -1,3 +1,7 @@
+#ifndef __MOBILE_CLIENT_HPP
+#define __MOBILE_CLIENT_HPP
+#endif
+
 #include "NetConfAgent.hpp"
 #include "MobileClient.hpp"
 #include <signal.h>
@@ -6,14 +10,10 @@
 namespace nsMobileClient
 {
     class MobileClient;
-
 }
 
 namespace
 {
-//data for test function NetConfAgent::print_current_config
-#define MAX_LEN 100
-
     /* Helper function for printing events. */
     const char *ev_to_str(sr_event_t ev)
     {
@@ -31,10 +31,10 @@ namespace
 
     void print_current_config(sysrepo::S_Session session, const char *module_name)
     {
-        char select_xpath[MAX_LEN];
+        char select_xpath[100];
         try
         {
-            snprintf(select_xpath, MAX_LEN, "/%s:*//*", module_name);
+            snprintf(select_xpath, 100, "/%s:*//*", module_name);
 
             auto values = session->get_items(&select_xpath[0]);
             if (values == nullptr)
@@ -121,7 +121,6 @@ namespace
         default:
             break;
         }
-
         return NULL;
     }
 
@@ -132,14 +131,12 @@ namespace
         cout << nodetype2str(schema->nodetype()) << " \"" << schema->name() << '\"' << endl;
         cout << '\t' << "Path: " << node->path() << endl;
         cout << '\t' << "Default: " << (node->dflt() ? "yes" : "no") << endl;
-
         /* type-specific print */
         switch (schema->nodetype())
         {
         case LYS_CONTAINER:
         {
             libyang::Schema_Node_Container scont(schema);
-
             cout << '\t' << "Presence: " << (scont.presence() ? "yes" : "no") << endl;
             break;
         }
@@ -147,7 +144,6 @@ namespace
         {
             libyang::Data_Node_Leaf_List leaf(node);
             libyang::Schema_Node_Leaf sleaf(schema);
-
             cout << '\t' << "Value: \"" << leaf.value_str() << '\"' << endl;
             cout << '\t' << "Is key: " << (sleaf.is_key() ? "yes" : "no") << endl;
             break;
@@ -174,7 +170,6 @@ namespace
         default:
             break;
         }
-
         cout << endl;
     }
 
@@ -247,15 +242,6 @@ namespace
 
 namespace ns_NetConf
 {
-
-    NetConfAgent::NetConfAgent()
-    {
-    }
-
-    NetConfAgent::~NetConfAgent()
-    {
-    }
-
     bool NetConfAgent::initSysrepo()
     {
         try
@@ -280,23 +266,30 @@ namespace ns_NetConf
         {
             libyang::S_Data_Node data = _session->get_data(xpath.c_str());
 
-            for (libyang::S_Data_Node &root : data->tree_for())
+            if (data != nullptr)
             {
-                for (libyang::S_Data_Node &node : root->tree_dfs())
+                for (libyang::S_Data_Node &root : data->tree_for())
                 {
-                    libyang::S_Schema_Node schema = node->schema();
+                    for (libyang::S_Data_Node &node : root->tree_dfs())
+                    {
+                        libyang::S_Schema_Node schema = node->schema();
 
-                    switch (schema->nodetype())
-                    {
-                    case LYS_LEAF:
-                    {
-                        libyang::Data_Node_Leaf_List leaf(node);
-                        libyang::Schema_Node_Leaf sleaf(schema);
-                        mapFromFetch.emplace(make_pair(node->path(), string(leaf.value_str())));
-                        break;
-                    }
+                        switch (schema->nodetype())
+                        {
+                        case LYS_LEAF:
+                        {
+                            libyang::Data_Node_Leaf_List leaf(node);
+                            libyang::Schema_Node_Leaf sleaf(schema);
+                            mapFromFetch.emplace(node->path(), string(leaf.value_str()));
+                            break;
+                        }
+                        }
                     }
                 }
+            }
+            else
+            {
+                return false;
             }
         }
         catch (const std::exception &e)
@@ -304,7 +297,6 @@ namespace ns_NetConf
             std::cerr << e.what() << '\n';
             return false;
         }
-
         return true;
     }
 
@@ -327,7 +319,7 @@ namespace ns_NetConf
 
                 for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                 {
-                     if (it->first == pathCh + "/state")
+                    if (it->first == pathCh + "/state")
                     {
                         state = it->second;
                     }
@@ -350,12 +342,11 @@ namespace ns_NetConf
                         }
                     }
                 }
-
                 mobClient.handleModuleChange(state, incomNum, incomState);
                 return SR_ERR_OK;
             };
 
-            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str());
+            _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str(), 0, SR_SUBSCR_DONE_ONLY);
         }
         catch (const std::exception &e)
         {
@@ -376,13 +367,10 @@ namespace ns_NetConf
             {
                 string name;
                 mobClient.handleOperData(name);
-
                 libyang::S_Context ctx = session->get_context();
                 libyang::S_Module mod = ctx->get_module(module_name);
                 string pathUserName = xpath + "/userName";
-
                 parent->new_path(ctx, pathUserName.c_str(), name.c_str(), LYD_ANYDATA_CONSTSTRING, 0);
-
                 return SR_ERR_OK;
             };
             _subscribe->oper_get_items_subscribe(module_name.c_str(), cb, xpath.c_str());
@@ -392,7 +380,6 @@ namespace ns_NetConf
             std::cerr << e.what() << '\n';
             return false;
         }
-
         return true;
     }
     bool NetConfAgent::subscriberForRpc(const string &module_name)
@@ -400,7 +387,6 @@ namespace ns_NetConf
         try
         {
             printf("Application will make an rpc call in %s\n", module_name.c_str());
-
             auto cbVals = [](sysrepo::S_Session session, const char *op_path,
                              const sysrepo::S_Vals input, sr_event_t event, uint32_t request_id, sysrepo::S_Vals_Holder output)
             {
@@ -435,7 +421,6 @@ namespace ns_NetConf
             std::cerr << e.what() << '\n';
             return false;
         }
-
         return true;
     }
 
@@ -467,6 +452,7 @@ namespace ns_NetConf
     {
         try
         {
+            // SR_ERR_OPERATION_FAILED
             _session->set_item_str(setData.first.c_str(), setData.second.c_str());
             _session->apply_changes();
         }
@@ -475,7 +461,6 @@ namespace ns_NetConf
             std::cerr << e.what() << '\n';
             return false;
         }
-
         return true;
     }
 
@@ -483,7 +468,7 @@ namespace ns_NetConf
     {
         try
         {
-            _session->delete_item(path.c_str());
+            _session->delete_item(path.c_str(), SR_DS_OPERATIONAL);
             _session->apply_changes();
         }
         catch (const std::exception &e)
@@ -491,8 +476,6 @@ namespace ns_NetConf
             std::cerr << e.what() << '\n';
             return false;
         }
-
         return true;
     }
-
 }
