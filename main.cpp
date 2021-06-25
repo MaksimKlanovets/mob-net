@@ -8,15 +8,16 @@
 
 #include "libsysrepocpp/headers/Session.hpp"
 
-using namespace std;
+using std::cout;
 
 namespace 
 {
-    //erase temp comands
-    void resetData(string &str1,string &str2)
+    bool isReg = false;
+
+    void resetData(string& command, string& arg)
     {
-     str1.clear();
-     str2.clear();
+     command.clear();
+     arg.clear();
     }
     //pring list of commmands
     void listCommands(const vector<string> &com)
@@ -26,14 +27,14 @@ namespace
             cout<< elem <<endl;
         }
     }
-    //if ch = 0 function must have an arg, if ch=1 than cannot arg
-    void printErr(const string &com, int ch = 0 )
+    //if change = 0 function must have an arg, if change=1 than cannot arg
+    void printErr(const string &com, bool change = false )
     {
-        if(ch == 0) 
+        if(change == 0) 
         {
             cout << com << " must contains an argument" << endl;
         }
-        if (ch == 1)    
+        if (change == 1)    
         {
             cout << com << " cannot contains an argument" << endl;
         }
@@ -79,7 +80,6 @@ int main(int argc, char **argv)
 const string module_name = "mobile-network";
 string tempComand {};
 string tempArg{};
-bool isReg = false;
 
 //commands with arg register,call,name
 const vector<string> m_com
@@ -105,7 +105,6 @@ my_map.emplace("help", [&]()
 { 
     listCommands(m_com); 
 });
-//
 my_map.emplace("register",[&]()
 {
     if (cMustArg(tempComand,tempArg) && !isReg)
@@ -120,7 +119,6 @@ my_map.emplace("register",[&]()
             return ;
         }
         isReg = true;
-
     }
     else if (isReg)
     {
@@ -134,7 +132,6 @@ my_map.emplace("unregister",[&]()
         mobileClient.unregister();
         cout << "registration was deleted" << endl;
     }
-    
     isReg = false;
 });
 my_map.emplace("call", [&]() 
@@ -143,7 +140,6 @@ my_map.emplace("call", [&]()
     {
         mobileClient.makeCall(tempArg);
     }
-    
 });
 my_map.emplace("name", [&]() 
 {
@@ -178,7 +174,6 @@ my_map.emplace("exit", []()
 { 
     //can call isReg
     cout <<"Exit" <<endl;
-    
 });
 cout << "Program is working. input help for list commands" <<endl;
 while (true)
@@ -191,20 +186,16 @@ while (true)
     {
         if (it->first != "exit")
         {
-
         it->second(); 
-
         if (!errorL.empty())
         {
             cout << errorL << endl;
             errorL.clear();
         }
-        
            continue;
         }
         break;
     }
 }
-
   return 0;
 }

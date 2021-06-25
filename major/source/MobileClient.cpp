@@ -1,6 +1,6 @@
 #include "MobileClient.hpp"
 
-using namespace std;
+using std::cout;
 
 namespace
 {
@@ -11,26 +11,10 @@ namespace
   const string IDLE = "idle";
   const string PATH_INC_NUM = "/incomingNumber";
   const string PATH_STATE = "/state";
-
-  string createPath(const string &key, const string &suffix = "")
-  {
-    return PATH + key + "']" + suffix;
-  }
 }
 
 namespace nsMobileClient
 {
-
-  MobileClient::MobileClient(/* args */)
-  {
-    _name = {};
-    _number = {};
-  }
-
-  MobileClient::~MobileClient()
-  {
-  }
-
   void MobileClient::handleModuleChange(const string &state, const string &incomNum, const string &incomState) //incoming num
   {
     if (state == BUSY && incomState == BUSY)
@@ -93,40 +77,34 @@ namespace nsMobileClient
   void MobileClient::setIncomigNumber(const string &number)
   {
     const pair<string, string> setData1 = make_pair(createPath(number, PATH_INC_NUM), _number);
-
     _netConfAgent->changeData(setData1);
-    
   }
 
   void MobileClient::makeCall(const string &number)
   {
-
     map<string, string> dataFor;
 
     if (_netConfAgent->fetchData(createPath(number), dataFor) && number != _number)
     {
       setIncomigNumber(number);
-
       map<string, string> dataForFetch;
-
       const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
       _netConfAgent->fetchData(createPath(number), dataForFetch);
 
-      for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
+      for (auto it : dataForFetch)
       {
-
-        if (it->second == BUSY)
+        if (it.second == BUSY)
         {
           cout << "client is busy now" << endl;
           const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
           _netConfAgent->changeData(setData);
         }
-        else if (it->second == ACTIVE)
+        else if (it.second == ACTIVE)
         {
           cout << "client is talking" << endl;
           _netConfAgent->changeData(setData);
         }
-        else if (it->second == IDLE)
+        else if (it.second == IDLE)
         {
           setOutNUm(number);
           setState(_number, BUSY);
@@ -142,24 +120,10 @@ namespace nsMobileClient
   void MobileClient::answer()
   {
     map<string, string> dataForFetch;
-
-    _netConfAgent->fetchData(createPath(_number), dataForFetch);
-    string incomingNumber;
-    map<string, string>::const_iterator it = dataForFetch.begin();
-    for (it; it != dataForFetch.end(); it++)
-    {
-      if (it->first != createPath(_number, PATH_INC_NUM))
-      {
-        continue;
-      }
-
-      incomingNumber = it->second;
-      cout << incomingNumber << endl;
-      setState(_number, ACTIVE);
-      setState(incomingNumber, ACTIVE);
-
-      break;
-    }
+    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
+    auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
+    setState(_number, ACTIVE);
+    setState(it->second, ACTIVE);
   }
 
   void MobileClient::callEnd()
@@ -167,26 +131,17 @@ namespace nsMobileClient
     map<string, string> dataForFetch;
     string temp{_outNum};
     _outNum.clear();
-    _netConfAgent->fetchData(createPath(_number), dataForFetch);
-    string incomingNumber = {};
-    map<string, string>::const_iterator it = dataForFetch.begin();
-    for (it; it != dataForFetch.end(); it++)
+    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
+    auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
+    if (it != dataForFetch.end())
     {
-      if (it->first != createPath(_number, PATH_INC_NUM))
-      {
-        continue;
-      }
-
-      incomingNumber = it->second;
-      setIncomigNumber(incomingNumber);
+      setIncomigNumber(it->second);
       _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
-      setState(incomingNumber, IDLE);
-      _netConfAgent->deleteItem(createPath(incomingNumber, PATH_INC_NUM));
+      setState(it->second, IDLE);
+      _netConfAgent->deleteItem(createPath(it->second, PATH_INC_NUM));
       setState(_number, IDLE);
-
-      break;
     }
-    if (it == dataForFetch.end())
+    else
     {
       _netConfAgent->deleteItem(createPath(temp, PATH_INC_NUM));
       setState(temp, IDLE);
@@ -203,30 +158,23 @@ namespace nsMobileClient
   void MobileClient::reject()
   {
     map<string, string> dataForFetch;
-    _netConfAgent->fetchData(createPath(_number), dataForFetch);
-    string incomingNumber;
-    map<string, string>::const_iterator it = dataForFetch.begin();
-    for (it; it != dataForFetch.end(); it++)
-    {
-      if (it->first != createPath(_number, PATH_INC_NUM))
-      {
-        continue;
-      }
+    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
+    auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
 
-      incomingNumber = it->second;
-      setState(incomingNumber, IDLE);
+    if (it != dataForFetch.end())
+    {
+      setState(it->second, IDLE);
       setState(_number, IDLE);
       _netConfAgent->deleteItem(createPath(_number, PATH_INC_NUM));
-
-      break;
     }
-    if (it == dataForFetch.end())
+    else
     {
       setState(_number, IDLE);
       setState(_outNum, IDLE);
       _netConfAgent->deleteItem(createPath(_outNum, PATH_INC_NUM));
     }
   }
+
   void MobileClient::unregister()
   {
     _netConfAgent->deleteItem(createPath(_number));
@@ -237,12 +185,19 @@ namespace nsMobileClient
   {
     return _number;
   }
+
   void MobileClient::setOutNUm(const string &outNum)
   {
     _outNum = outNum;
   }
-  string MobileClient::getName()
+
+  string MobileClient::getName() const
   {
     return _name;
+  }
+
+  string MobileClient::createPath(const string &key, const string &suffix)
+  {
+    return PATH + key + "']" + suffix;
   }
 }

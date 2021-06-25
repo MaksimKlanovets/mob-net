@@ -1,7 +1,7 @@
-#pragma once
 
 #include "NetConfAgent.hpp"
 #include "libsysrepocpp/headers/Session.hpp"
+
 using namespace std;
 
 namespace ns_NetConf
@@ -11,14 +11,12 @@ namespace ns_NetConf
 
 namespace nsMobileClient
 {
-
+     /** 
+* @brief class MobileClient main methods  for work with mobile client
+*/
      class MobileClient
      {
-
      public:
-          MobileClient();
-          ~MobileClient();
-
           /**
  * @brief registration user
  * 
@@ -31,7 +29,9 @@ namespace nsMobileClient
  * @brief print a message about event
  * 
  * @param name state caller 
- * @param incomNum  incoming number,
+ * *
+ * @param incomNum  incoming number
+ * 
  * @param incomState incoming state
  */
           void handleModuleChange(const string &state, const string &incomNum, const string &incomState);
@@ -43,18 +43,23 @@ namespace nsMobileClient
           void handleOperData(string &name);
           /**
  * @brief 
+ * 
  * @param 
+ * 
  * @return 
  */
           void handleRpc();
           /**
  * @brief 
+ * 
  * @param
+ * 
  * @return 
  */
           void handleNotification();
           /**
  * @brief make call 
+ * 
  * @param number whom to call
  */
           void makeCall(const string &number);
@@ -90,8 +95,19 @@ namespace nsMobileClient
  * @param number for set 
  */
           void setNumber(const string &number);
+          /**
+ * @brief set outgoing number
+ * 
+ * @param number - set this number
+ */
           void setOutNUm(const string &outNum);
-          string getName();
+          /**
+ * @brief get name
+ */
+          string getName()const;
+
+          string createPath(const string &key, const string &suffix = "");
+
 
      private:
           /**
@@ -104,6 +120,7 @@ namespace nsMobileClient
  * @brief set state
  * 
  * @param number - key for path 
+ * 
  * @param status - state for set
  */
           void setState(const string &number, const string &status);
@@ -113,5 +130,4 @@ namespace nsMobileClient
           string _number;
           string _outNum;
      };
-
 }
