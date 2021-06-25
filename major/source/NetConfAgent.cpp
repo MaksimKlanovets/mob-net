@@ -1,9 +1,13 @@
-#ifndef __MOBILE_CLIENT_HPP
-#define __MOBILE_CLIENT_HPP
-#endif
-
+#ifndef _NET_CONF_AGENT_HPP
+#define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
+#endif
+#ifndef _MOBILE_CLIENT_HPP
+#define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
+#endif 
+
+//#include "MobileClient.hpp"
 #include <signal.h>
 #include <unistd.h>
 #include "libsysrepocpp/headers/Session.hpp"

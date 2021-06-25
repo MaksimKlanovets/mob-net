@@ -1,5 +1,3 @@
-#pragma once
-
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
