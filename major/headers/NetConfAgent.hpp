@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 
 #include "libsysrepocpp/headers/Session.hpp"
 
@@ -45,7 +45,6 @@ namespace ns_NetConf
 * @brief set noconfig data - username;
 *
 *@param name module_name - name of module.
-
 *@param name setData - first - path, second value 
 *
 *@return true if ok, otherwise false

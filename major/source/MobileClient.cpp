@@ -1,5 +1,8 @@
-#include "MobileClient.hpp"
 
+#ifndef _MOBILE_CLIENT_HPP
+#define _MOBILE_CLIENT_HPP
+#include "MobileClient.hpp"
+#endif 
 using std::cout;
 
 namespace

@@ -1,5 +1,9 @@
 
+#ifndef _NET_CONF_AGENT_HPP
+#define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
+#endif
+//#include "NetConfAgent.hpp"
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
