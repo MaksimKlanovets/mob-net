@@ -38,17 +38,9 @@
 
 #include "sysrepo.h"
 
-namespace sysrepo {
+namespace sysrepo 
+{
 
-/**
- * @defgroup classes C++/Python
- * @{
- */
-
-/**
- * @brief Class for wrapping sr_session_ctx_t.
- * @class Session
- */
 class Session
 {
 
