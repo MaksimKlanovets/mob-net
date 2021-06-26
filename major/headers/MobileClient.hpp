@@ -2,6 +2,7 @@
 #define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
 #endif
+//#include "NetConfAgent.hpp"
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
@@ -20,6 +21,7 @@ namespace nsMobileClient
      {
      public:
           MobileClient();
+
           /**
  * @brief registration user
  * 
@@ -109,25 +111,23 @@ namespace nsMobileClient
  */
           string getName() const;
           /**
- * @brief helper method/ greate path 
+ * @brief create path    
  * 
- * @param key number, suffix - busy, active, idle
- * 
+ * @param key - number, suffix - state
  * 
  * @return all the path 
  */
           string createPath(const string &key, const string &suffix = "");
           /**
- * @brief set register state
+ * @brief set registration status
  * 
- * @param setData - data for set
- * 
+ * @param setStatus - status registration
  */
-          void setIsReg(const bool &setData);
+          void setIsReg(const bool &setStatus);
           /**
- * @brief get state
+ * @brief get status registration
  * 
- * @return if registered true, if no false
+ * @return  status registration
  */
           bool getIsReg() const;
 
@@ -151,6 +151,6 @@ namespace nsMobileClient
           string _name;
           string _number;
           string _outNum;
-          bool isReg;
+          bool _isReg;
      };
 }

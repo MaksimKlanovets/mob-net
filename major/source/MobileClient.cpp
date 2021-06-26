@@ -2,7 +2,6 @@
 #define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
 #endif
-
 using std::cout;
 
 namespace
@@ -18,10 +17,11 @@ namespace
 
 namespace nsMobileClient
 {
-  MobileClient::MobileClient():isReg{false}
+  MobileClient::MobileClient() : _isReg{false}
   {
   }
-  void MobileClient::handleModuleChange(const string &state, const string &incomNum, const string &incomState) //incoming num
+
+  void MobileClient::handleModuleChange(const string &state, const string &incomNum, const string &incomState)
   {
     if (state == BUSY && incomState == BUSY)
     {
@@ -51,7 +51,6 @@ namespace nsMobileClient
     {
       cout << "something with connection" << endl;
     }
-
     setName(name);
     setState(_number, IDLE);
 
@@ -60,7 +59,7 @@ namespace nsMobileClient
     {
       return false;
     }
-
+    _isReg = true;
     cout << "registration completed" << endl;
 
     return true;
@@ -89,26 +88,34 @@ namespace nsMobileClient
   void MobileClient::makeCall(const string &number)
   {
     map<string, string> dataFor;
+    map<string, string> dataForUser;
+    _netConfAgent->fetchData(createPath(_number), dataForUser);
+    auto itUserState = dataForUser.find(createPath(_number, PATH_STATE));
 
+    if (itUserState->second == IDLE)
+    {
+      _outNum.clear();
+    }
+    if (itUserState->second != IDLE)
+    {
+      cout << "not allowed" << endl;
+      return;
+    }
     if (_netConfAgent->fetchData(createPath(number), dataFor) && number != _number)
     {
-      setIncomigNumber(number);
-      const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
-      auto it = dataFor.find(createPath(number, PATH_STATE));
+      auto itDataFor = dataFor.find(createPath(number, PATH_STATE));
 
-      if (it->second == BUSY)
+      if (itDataFor->second == BUSY)
       {
         cout << "client is busy now" << endl;
-        const pair<string, string> setData = make_pair(createPath(_number, PATH_STATE), IDLE);
-        _netConfAgent->changeData(setData);
       }
-      else if (it->second == ACTIVE)
+      else if (itDataFor->second == ACTIVE)
       {
         cout << "client is talking" << endl;
-        _netConfAgent->changeData(setData);
       }
-      else if (it->second == IDLE)
+      else if (itDataFor->second == IDLE)
       {
+        setIncomigNumber(number);
         setOutNUm(number);
         setState(_number, BUSY);
         setState(number, BUSY);
@@ -122,20 +129,31 @@ namespace nsMobileClient
   void MobileClient::answer()
   {
     map<string, string> dataForFetch;
-    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
-    auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
-    setState(_number, ACTIVE);
-    setState(it->second, ACTIVE);
+    if (_netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch))
+    {
+      auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
+      setState(_number, ACTIVE);
+      setState(it->second, ACTIVE);
+    }
+    else
+    {
+      cout << "no incoming number, command is not correct" << endl;
+    }
   }
 
   void MobileClient::callEnd()
   {
     map<string, string> dataForFetch;
-    string temp{_outNum};
-    _outNum.clear();
-    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
+    _netConfAgent->fetchData(createPath(_number), dataForFetch);
     auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
-    
+    auto it1 = dataForFetch.find(createPath(_number, PATH_STATE));
+    string temp{_outNum};
+
+    if (it1->second != ACTIVE)
+    {
+      cout << "no active phone call, operation not available 1" << endl;
+      return;
+    }
     if (it != dataForFetch.end())
     {
       setIncomigNumber(it->second);
@@ -146,6 +164,7 @@ namespace nsMobileClient
     }
     else
     {
+      _outNum.clear();
       _netConfAgent->deleteItem(createPath(temp, PATH_INC_NUM));
       setState(temp, IDLE);
       setState(_number, IDLE);
@@ -161,7 +180,14 @@ namespace nsMobileClient
   void MobileClient::reject()
   {
     map<string, string> dataForFetch;
-    _netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch);
+    _netConfAgent->fetchData(createPath(_number), dataForFetch);
+    auto itState = dataForFetch.find(createPath(_number, PATH_STATE));
+
+    if (itState->second != BUSY)
+    {
+      cout << "command is not correct" << endl;
+      return;
+    }
     auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
 
     if (it != dataForFetch.end())
@@ -176,12 +202,15 @@ namespace nsMobileClient
       setState(_outNum, IDLE);
       _netConfAgent->deleteItem(createPath(_outNum, PATH_INC_NUM));
     }
+    _outNum.clear();
   }
 
   void MobileClient::unregister()
   {
     _netConfAgent->deleteItem(createPath(_number));
     _netConfAgent->~NetConfAgent();
+    _isReg = false;
+    _outNum.clear();
   }
 
   string MobileClient::getNumber()
@@ -203,14 +232,14 @@ namespace nsMobileClient
   {
     return PATH + key + "']" + suffix;
   }
-
-  void MobileClient::setIsReg(const bool &setData)
+  void MobileClient::setIsReg(const bool &setStatus)
   {
-    isReg = setData;
+    _isReg = setStatus;
   }
 
   bool MobileClient::getIsReg() const
   {
-    return isReg;
+    return _isReg;
   }
+
 }
