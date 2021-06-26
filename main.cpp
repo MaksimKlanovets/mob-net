@@ -12,7 +12,6 @@ using std::cout;
 
 namespace 
 {
-    bool isReg = false;
 
     void resetData(string& command, string& arg)
     {
@@ -44,8 +43,8 @@ namespace
     {
         if (com.find(' ') != string::npos) 
         {
-            arg = com.substr(com.find(' ')+1,com.size() -1);
-            com.erase(com.find(' '),com.size() -1);
+            arg = com.substr(com.find(' ')+1,com.size());
+            com.erase(com.find(' '),com.size());
             return true;
         }
         return false;
@@ -107,7 +106,7 @@ my_map.emplace("help", [&]()
 });
 my_map.emplace("register",[&]()
 {
-    if (cMustArg(tempComand,tempArg) && !isReg)
+    if (cMustArg(tempComand,tempArg) && !mobileClient.getIsReg())
     { 
         string number;
         cout << "input your phone number" <<endl;
@@ -118,32 +117,30 @@ my_map.emplace("register",[&]()
             errorL =  "register is done with error";
             return ;
         }
-        isReg = true;
     }
-    else if (isReg)
+    else if (mobileClient.getIsReg())
     {
         cout << "Only one registration" << endl;
     }
 });
 my_map.emplace("unregister",[&]()
 {
-    if (cNoArg(tempComand,tempArg) && isReg)
+    if (cNoArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.unregister();
         cout << "registration was deleted" << endl;
     }
-    isReg = false;
 });
 my_map.emplace("call", [&]() 
 {
-    if (cMustArg(tempComand,tempArg) && isReg)
+    if (cMustArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.makeCall(tempArg);
     }
 });
 my_map.emplace("name", [&]() 
 {
-    if (cMustArg(tempComand,tempArg) && isReg)
+    if (cMustArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.setName(tempArg);
         cout << "name changed to " << mobileClient.getName() << endl;
@@ -151,21 +148,21 @@ my_map.emplace("name", [&]()
 });
 my_map.emplace("answer", [&]() 
 { 
-    if (cNoArg(tempComand,tempArg) && isReg)
+    if (cNoArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.answer();
     }
 });
 my_map.emplace("reject", [&]() 
 { 
-     if (cNoArg(tempComand,tempArg) && isReg)
+     if (cNoArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.reject();
     }
 });
 my_map.emplace("callEnd", [&]() 
 { 
-     if (cNoArg(tempComand,tempArg) && isReg)
+     if (cNoArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
         mobileClient.callEnd();
     }
@@ -186,16 +183,17 @@ while (true)
     {
         if (it->first != "exit")
         {
-        it->second(); 
-        if (!errorL.empty())
-        {
-            cout << errorL << endl;
-            errorL.clear();
-        }
+            it->second(); 
+            if (!errorL.empty())
+            {
+                cout << errorL << endl;
+                 errorL.clear();
+            }
            continue;
         }
         break;
     }
+  
 }
   return 0;
 }

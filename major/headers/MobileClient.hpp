@@ -21,6 +21,8 @@ namespace nsMobileClient
      class MobileClient
      {
      public:
+     MobileClient();
+
           /**
  * @brief registration user
  * 
@@ -108,10 +110,24 @@ namespace nsMobileClient
           /**
  * @brief get name
  */
-          string getName()const;
-
+          string getName() const;
+          /**
+ * @brief create path    
+ * 
+ * @param key - number, suffix - state
+ * 
+ * @return all the path 
+ */
           string createPath(const string &key, const string &suffix = "");
-
+          /**
+ * @brief 
+ * 
+ * @param
+ * 
+ * @return 
+ */
+     void setIsReg(const bool& setStatus );
+     bool getIsReg()const;
 
      private:
           /**
@@ -133,5 +149,6 @@ namespace nsMobileClient
           string _name;
           string _number;
           string _outNum;
+          bool _isReg;
      };
 }
