@@ -456,7 +456,6 @@ namespace ns_NetConf
     {
         try
         {
-            // SR_ERR_OPERATION_FAILED
             _session->set_item_str(setData.first.c_str(), setData.second.c_str());
             _session->apply_changes();
         }

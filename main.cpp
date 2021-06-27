@@ -5,7 +5,6 @@
 #include <string>
 #include "MobileClient.hpp"
 #include <cstring>
-
 #include "libsysrepocpp/headers/Session.hpp"
 
 using std::cout;
@@ -104,7 +103,22 @@ my_map.emplace("register",[&]()
         string number;
         cout << "input your phone number" <<endl;
         cin >>number;
+        std::cin.ignore(32767, '\n');
+
+            for (size_t i = 0; i < number.size(); i++)
+            {
+                if (number[0] == '+')
+                {
+                    continue;
+                }
+                if (number[i] < '0' || number[i] > '9' )
+                {
+                   cout << "only numbers are allowed" <<endl;
+                   return;
+                }
+            }
         mobileClient.setNumber(number);
+        
         if (!mobileClient.registerClient(tempArg))
         {
             errorL =  "register is done with error";
@@ -120,8 +134,14 @@ my_map.emplace("unregister",[&]()
 {
     if (cNoArg(tempComand,tempArg) && mobileClient.getIsReg())
     {
-        mobileClient.unregister();
-        cout << "registration was deleted" << endl;
+        if ( mobileClient.unregister())
+        {
+           cout << "registration deleted" << endl;
+        }
+        else
+        {
+            cout << "command is not correct" << endl;
+        }
     }
 });
 my_map.emplace("call", [&]() 
@@ -160,9 +180,16 @@ my_map.emplace("callEnd", [&]()
         mobileClient.callEnd();
     }
 });
-my_map.emplace("exit", []() 
+my_map.emplace("exit", [&]() 
 { 
-    cout <<"Exit" <<endl;
+     if ( mobileClient.unregister())
+        {
+           cout << "registration deleted" << endl;
+        }
+        else
+        {
+            cout << "command is not correct" << endl;
+        }
 });
 cout << "Program is working. input help for list commands" <<endl;
 while (true)
@@ -171,6 +198,7 @@ while (true)
     getline(cin,tempComand);
     separateComArg(tempComand,tempArg);
     map<string,function<void()>>::iterator it = my_map.find(tempComand);
+
     if(it != my_map.end())
     {
         if (it->first != "exit")
@@ -183,7 +211,18 @@ while (true)
             }
            continue;
         }
-        break;
+        
+        it->second();
+
+        if (!mobileClient.getIsReg())
+        {
+            cout << "exit" << endl;
+            break;
+        }
+    }
+    else
+    {
+        cout <<"command does not exist" << endl;
     }
 }
   return 0;

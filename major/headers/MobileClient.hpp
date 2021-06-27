@@ -88,8 +88,11 @@ namespace nsMobileClient
           void reject();
           /**
  *@brief delelte registration
+ *
+ * @return true if ok, otherwise false
  */
-          void unregister();
+          bool unregister();
+          /**
           /**
  * @brief getting private number
  */

@@ -51,6 +51,7 @@ namespace nsMobileClient
     {
       cout << "something with connection" << endl;
     }
+
     setName(name);
     setState(_number, IDLE);
 
@@ -59,9 +60,9 @@ namespace nsMobileClient
     {
       return false;
     }
+
     _isReg = true;
     cout << "registration completed" << endl;
-
     return true;
   }
 
@@ -129,6 +130,7 @@ namespace nsMobileClient
   void MobileClient::answer()
   {
     map<string, string> dataForFetch;
+
     if (_netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch))
     {
       auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
@@ -188,6 +190,7 @@ namespace nsMobileClient
       cout << "command is not correct" << endl;
       return;
     }
+
     auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
 
     if (it != dataForFetch.end())
@@ -202,15 +205,26 @@ namespace nsMobileClient
       setState(_outNum, IDLE);
       _netConfAgent->deleteItem(createPath(_outNum, PATH_INC_NUM));
     }
+
     _outNum.clear();
   }
 
-  void MobileClient::unregister()
+  bool MobileClient::unregister()
   {
+    map<string, string> dataForFetch;
+    _netConfAgent->fetchData(createPath(_number), dataForFetch);
+    auto itState = dataForFetch.find(createPath(_number, PATH_STATE));
+
+    if (itState->second != IDLE)
+    {
+      return false;
+    }
+    
     _netConfAgent->deleteItem(createPath(_number));
     _netConfAgent->~NetConfAgent();
     _isReg = false;
     _outNum.clear();
+    return true;
   }
 
   string MobileClient::getNumber()
@@ -241,5 +255,4 @@ namespace nsMobileClient
   {
     return _isReg;
   }
-
 }
