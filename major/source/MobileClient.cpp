@@ -2,6 +2,7 @@
 #define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
 #endif
+
 using std::cout;
 
 namespace
@@ -17,7 +18,13 @@ namespace
 
 namespace nsMobileClient
 {
-  MobileClient::MobileClient() : _isReg{false}
+  MobileClient::MobileClient()
+      : MobileClient::MobileClient(make_unique<ns_NetConf::NetConfAgent>())
+  {
+  }
+
+  MobileClient::MobileClient(unique_ptr<ns_NetConf::NetConfAgent> netConfAgent)
+      : _isReg{false}, _netConfAgent{move(netConfAgent)}
   {
   }
 
@@ -45,7 +52,6 @@ namespace nsMobileClient
 
   bool MobileClient::registerClient(const string &name)
   {
-    _netConfAgent = make_shared<ns_NetConf::NetConfAgent>();
 
     if (!_netConfAgent->initSysrepo())
     {
@@ -219,7 +225,7 @@ namespace nsMobileClient
     {
       return false;
     }
-    
+
     _netConfAgent->deleteItem(createPath(_number));
     _netConfAgent->~NetConfAgent();
     _isReg = false;

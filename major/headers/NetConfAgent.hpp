@@ -81,6 +81,7 @@ namespace ns_NetConf
 *@return true if ok, otherwise false
 */
                 bool deleteItem(const string &path);
+
         private:
                 shared_ptr<sysrepo::Session> _session;
                 shared_ptr<sysrepo::Subscribe> _subscribe;

@@ -2,7 +2,6 @@
 #define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
 #endif
-//#include "NetConfAgent.hpp"
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
@@ -21,6 +20,7 @@ namespace nsMobileClient
      {
      public:
           MobileClient();
+          MobileClient(unique_ptr<ns_NetConf::NetConfAgent> netConfAgent);
 
           /**
  * @brief registration user
@@ -150,7 +150,8 @@ namespace nsMobileClient
  */
           void setState(const string &number, const string &status);
 
-          shared_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
+               //unique pointer
+          unique_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
           string _name;
           string _number;
           string _outNum;
