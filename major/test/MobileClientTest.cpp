@@ -7,10 +7,7 @@
 #define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
 #endif
-#ifndef _NET_CONF_AGENT_HPP
-#define _NET_CONF_AGENT_HPP
-#include "NetConfAgent.hpp"
-#endif
+
 
 class MobileClientTest : public testing::Test
 {

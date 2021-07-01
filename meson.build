@@ -48,7 +48,6 @@ libyangcpp_dep = declare_dependency (
     ]
 )
 
-
 libsysrepocpp = static_library(
     'libsysrepocpp',
     sources : libsysrepocpp_sources_with_path,
@@ -96,8 +95,6 @@ dependencies : [sysrepo, major_dep,gtest_dep,gmock_dep ],
   install : true,
   link_args: ['-lpthread', '-ldl'],
   cpp_args : '-pthread')
-
-
 
     test('test',e)
 

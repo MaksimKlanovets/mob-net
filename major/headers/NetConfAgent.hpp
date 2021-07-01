@@ -9,12 +9,11 @@ namespace nsMobileClient
 
 namespace ns_NetConf
 {
-
         class NetConfAgent
         {
         public:
                 virtual ~NetConfAgent();
-                
+
                 /** 
 * @brief initialization Sysrepo. 
 *
@@ -39,8 +38,8 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                virtual bool subscriberForModelChanges(const string &module_name, nsMobileClient::MobileClient &mobClient,
-                                                       const string &xpath);
+                virtual bool subscriberForModelChanges(const string &module_name,
+                                                       nsMobileClient::MobileClient &mobClient, const string &xpath);
                 /** 
 * @brief set noconfig data - username;
 *

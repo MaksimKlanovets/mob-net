@@ -245,8 +245,6 @@ namespace
 
 namespace ns_NetConf
 {
-    
-    
     bool NetConfAgent::initSysrepo()
     {
         try
