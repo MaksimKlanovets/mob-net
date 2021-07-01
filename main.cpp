@@ -6,7 +6,6 @@
 #include "MobileClient.hpp"
 #include <cstring>
 #include "libsysrepocpp/headers/Session.hpp"
-
 using std::cout;
 
 namespace 

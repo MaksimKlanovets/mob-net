@@ -6,7 +6,8 @@ project('SysrepoListener', ['c', 'cpp'],
 libpcre = dependency('libpcre', required : true)
 sysrepo = dependency('sysrepo', required : true)
 libyang = dependency ('libyang', required : true)
-
+gtest_dep = dependency('gtest',main:true)
+gmock_dep = dependency('gmock')
 
 
 subdir ('libyangextension/source')
@@ -80,30 +81,23 @@ major_dep = declare_dependency(
     ] 
 )
 
-testl = static_library(
-'testl',
-sources : test_path,
-include_directories: [
-  source_include
-  ]
-)
-
-test_dep = declare_dependency(
-    link_with:[testl],
-    dependencies :major_dep,
-    include_directories : [
-        source_include
-    ] 
-)
-
-
 #add_project_arduments('LIBS=-ldl', language : 'c')
 
-exe = executable('demo', 
+ executable('demo', 
 sources : 'main.cpp',
-dependencies : [sysrepo, test_dep],
+dependencies : [sysrepo, major_dep],
   install : true,
   link_args: ['-lpthread', '-ldl'],
   cpp_args : '-pthread')
   
-test('basic', exe)
+ e = executable('testprog', 
+sources : 'major/test/MobileClientTest.cpp',
+dependencies : [sysrepo, major_dep,gtest_dep,gmock_dep ],
+  install : true,
+  link_args: ['-lpthread', '-ldl'],
+  cpp_args : '-pthread')
+
+
+
+    test('test',e)
+

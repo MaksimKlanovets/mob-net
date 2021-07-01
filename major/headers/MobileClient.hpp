@@ -4,8 +4,6 @@
 #endif
 #include "libsysrepocpp/headers/Session.hpp"
 
-using namespace std;
-
 namespace ns_NetConf
 {
      class NetConfAgent;
@@ -21,7 +19,6 @@ namespace nsMobileClient
      public:
           MobileClient();
           MobileClient(unique_ptr<ns_NetConf::NetConfAgent> netConfAgent);
-
           /**
  * @brief registration user
  * 
@@ -53,7 +50,7 @@ namespace nsMobileClient
  * 
  * @return 
  */
-          void handleRpc();
+          // void handleRpc();
           /**
  * @brief 
  * 
@@ -61,7 +58,7 @@ namespace nsMobileClient
  * 
  * @return 
  */
-          void handleNotification();
+          //void handleNotification();
           /**
  * @brief make call 
  * 
@@ -150,7 +147,6 @@ namespace nsMobileClient
  */
           void setState(const string &number, const string &status);
 
-               //unique pointer
           unique_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
           string _name;
           string _number;

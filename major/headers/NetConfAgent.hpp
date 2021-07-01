@@ -13,12 +13,14 @@ namespace ns_NetConf
         class NetConfAgent
         {
         public:
+                virtual ~NetConfAgent();
+                
                 /** 
 * @brief initialization Sysrepo. 
 *
 *@return true if ok, otherwise false
 */
-                bool initSysrepo();
+                virtual bool initSysrepo();
                 /** 
 * @brief fetching data from  a given path
 *
@@ -29,7 +31,7 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool fetchData(const string &xpath, map<string, string> &mapFromFetch);
+                virtual bool fetchData(const string &xpath, map<string, string> &mapFromFetch);
                 /** 
 * @brief  Subscribe for model Changes
 *
@@ -37,8 +39,8 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool subscriberForModelChanges(const string &module_name, nsMobileClient::MobileClient &mobClient,
-                                               const string &xpath);
+                virtual bool subscriberForModelChanges(const string &module_name, nsMobileClient::MobileClient &mobClient,
+                                                       const string &xpath);
                 /** 
 * @brief set noconfig data - username;
 *
@@ -47,8 +49,8 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool registerOperData(const string &module_name, const string &xpath,
-                                      nsMobileClient::MobileClient &mobClient);
+                virtual bool registerOperData(const string &module_name, const string &xpath,
+                                              nsMobileClient::MobileClient &mobClient);
                 /** 
 * @brief subscribe For Rpc/ call back for rpc message
 *
@@ -56,7 +58,7 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool subscriberForRpc(const string &module_name);
+                virtual bool subscriberForRpc(const string &module_name);
                 /** 
 * @brief notifySysrepo - notifications Sysrepo
 *
@@ -64,7 +66,7 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool notifySysrepo(const string &module_name);
+                virtual bool notifySysrepo(const string &module_name);
                 /** 
 * @brief changeData - change data 
 *
@@ -72,7 +74,7 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool changeData(const pair<string, string> &setData);
+                virtual bool changeData(const pair<string, string> &setData);
                 /** 
 * @brief delete item 
 *
@@ -80,7 +82,7 @@ namespace ns_NetConf
 *
 *@return true if ok, otherwise false
 */
-                bool deleteItem(const string &path);
+                virtual bool deleteItem(const string &path);
 
         private:
                 shared_ptr<sysrepo::Session> _session;

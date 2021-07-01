@@ -7,7 +7,6 @@
 #include "MobileClient.hpp"
 #endif 
 
-//#include "MobileClient.hpp"
 #include <signal.h>
 #include <unistd.h>
 #include "libsysrepocpp/headers/Session.hpp"
@@ -246,6 +245,8 @@ namespace
 
 namespace ns_NetConf
 {
+    
+    
     bool NetConfAgent::initSysrepo()
     {
         try
@@ -481,4 +482,8 @@ namespace ns_NetConf
         }
         return true;
     }
+
+   NetConfAgent::~NetConfAgent()
+   {
+   }
 }

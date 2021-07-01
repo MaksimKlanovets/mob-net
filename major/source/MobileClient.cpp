@@ -83,6 +83,7 @@ namespace nsMobileClient
   }
   void MobileClient::setNumber(const string &number)
   {
+    cout << "called setNumber" << endl;
     _number = number;
   }
 
@@ -261,4 +262,5 @@ namespace nsMobileClient
   {
     return _isReg;
   }
+ 
 }
