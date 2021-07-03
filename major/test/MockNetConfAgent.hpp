@@ -1,7 +1,6 @@
-#ifndef _NET_CONF_AGENT_HPP
-#define _NET_CONF_AGENT_HPP
+#ifndef _MOCK_NET_CONF_AGENT_HPP
+#define _MOCK_NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
-#endif
 
 #include "gmock/gmock.h"
 
@@ -17,3 +16,4 @@ public:
   MOCK_METHOD(bool, changeData, ((const pair<string, string> &setData)), (override));
   MOCK_METHOD(bool, deleteItem, (const string &path), (override));
 };
+#endif

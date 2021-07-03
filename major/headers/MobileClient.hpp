@@ -1,7 +1,7 @@
-#ifndef _NET_CONF_AGENT_HPP
-#define _NET_CONF_AGENT_HPP
+#ifndef _MOBILE_CLIENT_HPP
+#define _MOBILE_CLIENT_HPP
+#include "MobileClient.hpp"
 #include "NetConfAgent.hpp"
-#endif
 #include "libsysrepocpp/headers/Session.hpp"
 
  namespace ns_NetConf
@@ -154,3 +154,4 @@ namespace nsMobileClient
           bool _isReg;
      };
 }
+#endif

@@ -1,12 +1,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-
 #include "MockNetConfAgent.hpp"
-
-#ifndef _MOBILE_CLIENT_HPP
-#define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
-#endif
 
 using ::testing::_;
 using ::testing::Return;
@@ -42,8 +37,8 @@ TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
         .WillOnce(Return(true));
     EXPECT_CALL(*_mock, changeData(_)).Times(2);
 
-     //_mobileClient->setNumber(number);
-    // _mobileClient->setName(name);
+     _mobileClient->setNumber(number);
+    _mobileClient->setName(name);
     _mobileClient->setState(number, IDLE);
 
     EXPECT_CALL(*_mock, registerOperData(_, _, _))
@@ -80,6 +75,7 @@ TEST_F(MobileClientTest, shouldSuccedToMakeCall)
     _mobileClient->setOutNUm(incNumber);
 
     _mobileClient->setNumber(number);
+    
     EXPECT_CALL(*_mock, fetchData(_, _)).WillOnce(Return(true));
     _mobileClient->makeCall(incNumber);
 }

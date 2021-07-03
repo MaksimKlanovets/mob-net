@@ -1,8 +1,9 @@
+#ifndef _NET_CONF_AGENT_HPP
+#define _NET_CONF_AGENT_HPP
+#include "NetConfAgent.hpp"
 #include "libsysrepocpp/headers/Session.hpp"
 
 using namespace std;
-
-
 
 namespace nsMobileClient
 {
@@ -91,3 +92,4 @@ namespace ns_NetConf
                 shared_ptr<sysrepo::Connection> _connection;
         };
 }
+#endif

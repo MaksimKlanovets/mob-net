@@ -1,19 +1,8 @@
-#ifndef _NET_CONF_AGENT_HPP
-#define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"
-#endif
-#ifndef _MOBILE_CLIENT_HPP
-#define _MOBILE_CLIENT_HPP
 #include "MobileClient.hpp"
-#endif 
-
 #include <signal.h>
 #include <unistd.h>
 #include "libsysrepocpp/headers/Session.hpp"
-namespace nsMobileClient
-{
-    class MobileClient;
-}
 
 namespace
 {
