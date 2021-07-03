@@ -39,130 +39,134 @@ protected:
     testing::StrictMock<MockNetConfAgent> *_mock;
 };
 
-// TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
-// {
+TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
+{
 
-//     EXPECT_CALL(*_mock, initSysrepo())
-//         .WillOnce(Return(true));
-//     EXPECT_CALL(*_mock, changeData(_)).Times(1);
-//     EXPECT_CALL(*_mock, registerOperData(_, _, _))
-//         .WillOnce(Return(true));
-//     EXPECT_CALL(*_mock, subscriberForModelChanges(_, _, _))
-//         .WillOnce(Return(true));
-//     EXPECT_TRUE(_mobileClient->registerClient(NAME, NUMBER));
-// }
+    EXPECT_CALL(*_mock, initSysrepo())
+        .WillOnce(Return(true));
+    EXPECT_CALL(*_mock, changeData(_)).Times(1);
+    EXPECT_CALL(*_mock, registerOperData(_, _, _))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*_mock, subscriberForModelChanges(_, _, _))
+        .WillOnce(Return(true));
+    EXPECT_TRUE(_mobileClient->registerClient(NAME, NUMBER));
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToHandleOperData)
-// {
-//     _mobileClient->setName(NAME);
-//     string tname = "testName";
-//     _mobileClient->handleOperData(tname);
-//     if (NAME != tname)
-//     {
-//         cout << "incName " << NAME << " outgoing " << tname <<" --inconsistency " <<endl;
-//     }
-// }
+TEST_F(MobileClientTest, shouldSuccedToHandleOperData)
+{
+    _mobileClient->setName(NAME);
+    string tname = "testName";
+    _mobileClient->handleOperData(tname);
+    if (NAME != tname)
+    {
+        cout << "incName " << NAME << " outgoing " << tname << " --inconsistency " << endl;
+    }
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToSetName)
-// {
-//     _mobileClient->setName(NAME);
-//     string tName = _mobileClient->getName();
-//     if(NAME == tName)
-//     {
-//                  cout << "incName->" << NAME << ";\toutgoing->" << tName <<" --inconsistency " <<endl;
-//     }
-// }
+TEST_F(MobileClientTest, shouldSuccedToSetName)
+{
+    _mobileClient->setName(NAME);
+    string tName = _mobileClient->getName();
+    if (NAME != tName)
+    {
+        cout << "incName->" << NAME << ";\toutgoing->" << tName << " --inconsistency " << endl;
+    }
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToSetNumber)
-// {
-//     _mobileClient->setNumber(NUMBER);
-//     string tNumber = _mobileClient->getNumber();
-//     if (NUMBER != tNumber)
-//     {
-//         cout << "incNumber->" << NUMBER << ";\toutgoing->" << tNumber <<" --inconsistency " <<endl;
-
-//     }
-// }
-
+TEST_F(MobileClientTest, shouldSuccedToSetNumber)
+{
+    _mobileClient->setNumber(NUMBER);
+    string tNumber = _mobileClient->getNumber();
+    if (NUMBER != tNumber)
+    {
+        cout << "incNumber->" << NUMBER << ";\toutgoing->" << tNumber << " --inconsistency " << endl;
+    }
+}
 
 TEST_F(MobileClientTest, shouldSuccedToSetState)
 {
-   EXPECT_CALL(*_mock, changeData(_)).Times(1);
-    _mobileClient->setState(NUMBER,ACTIVE);
-
-    map<string, string> dataFor;
-    _mock->fetchData(createPath(NUMBER),dataFor);
+    EXPECT_CALL(*_mock, changeData(_)).Times(1);
+    _mobileClient->setState(NUMBER, ACTIVE);
 }
 
-// TEST_F(MobileClientTest, shouldSuccedToMakeCall)
-// {
-//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
+TEST_F(MobileClientTest, shouldSuccedToMakeCall)
+{
+  
+    EXPECT_CALL(*_mock, fetchData(_, _));
+    _mobileClient->makeCall(INC_NUMBER);
+}
 
-//     _mobileClient->setState(NUMBER, IDLE);
-//     _mobileClient->setState(INC_NUMBER, IDLE);
-//     map<string, string> dataForFetch;
-//     EXPECT_CALL(*_mock, fetchData(createPath(NUMBER), dataForFetch));
-//     auto itUserState = dataForFetch.find(createPath(NUMBER, PATH_STATE));
-//     if (itUserState->second == IDLE)
-//     {
-//         cout << "not allowed" << endl;
-//         return;
-//     }
-//      _mobileClient->makeCall(NUMBER);
+TEST_F(MobileClientTest, shouldSuccedToAnswer)
+{
+    EXPECT_CALL(*_mock, changeData(_)).Times(2);
+    _mobileClient->setState(NUMBER, ACTIVE);
+    _mobileClient->setState(INC_NUMBER, ACTIVE);
+    EXPECT_CALL(*_mock, fetchData(_, _));
+    _mobileClient->answer();
+}
 
-    // EXPECT_CALL(*_mock, changeData(_)).Times(3);
-    // _mobileClient->setIncomigNumber(number);
-    // _mobileClient->setState(number, BUSY);
-    // _mobileClient->setState(incNumber, BUSY);
-    // _mobileClient->setOutNUm(incNumber);
+TEST_F(MobileClientTest, shouldSuccedToCallEnd)
+{
+    EXPECT_CALL(*_mock, changeData(_)).Times(3);
+    _mobileClient->setIncomigNumber(NUMBER);
+    _mobileClient->setState(NUMBER, IDLE);
+    _mobileClient->setState(INC_NUMBER, IDLE);
+    EXPECT_CALL(*_mock, fetchData(_, _));
+    _mobileClient->callEnd();
+}
 
-    // _mobileClient->setNumber(number);
+TEST_F(MobileClientTest, shouldSuccedToReject)
+{
+     EXPECT_CALL(*_mock, changeData(_)).Times(2);
+     _mobileClient->setState(NUMBER, IDLE);
+     _mobileClient->setState(INC_NUMBER, IDLE);
+     EXPECT_CALL(*_mock, fetchData(_, _));
+     _mobileClient->reject();
+}
 
-    // EXPECT_CALL(*_mock, fetchData(_, _)).WillOnce(Return(true));
-    // _mobileClient->makeCall(incNumber);
-//}
+TEST_F(MobileClientTest, shouldSuccedToUnregister)
+{
+    _mobileClient->setNumber(NUMBER);
+    EXPECT_CALL(*_mock, fetchData(_, _)).Times(2);
+    _mobileClient->reject();
+    _mobileClient->unregister();
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToAnswer)
-// {
-//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
-//     _mobileClient->setState(number, ACTIVE);
-//     _mobileClient->setState(incNumber, ACTIVE);
-//     EXPECT_CALL(*_mock, fetchData(_, _));
-//     _mobileClient->answer();
-// }
+TEST_F(MobileClientTest, shouldSuccedToGetName)
+{
+    _mobileClient->setName(NAME);
+    string tname = _mobileClient->getName();
+    if (tname != NAME)
+    {
+        cout << "error, name does not match " << endl;
+    }
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToCallEnd)
-// {
-//     EXPECT_CALL(*_mock, changeData(_)).Times(3);
-//     _mobileClient->setIncomigNumber(number);
-//     _mobileClient->setState(number, IDLE);
-//     _mobileClient->setState(incNumber, IDLE);
-//     EXPECT_CALL(*_mock, fetchData(_, _));
-//     _mobileClient->callEnd();
-// }
+TEST_F(MobileClientTest, shouldSuccedToCreatePath)
+{
+    string path = _mobileClient->createPath(NUMBER);
+    if (path != (PATH + NUMBER +"']"))
+    {
+        cout  << " --inconsistency " << endl;
+    }
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToReject)
-// {
-//      EXPECT_CALL(*_mock, changeData(_)).Times(2);
-//      _mobileClient->setState(number, IDLE);
-//      _mobileClient->setState(incNumber, IDLE);
-//      EXPECT_CALL(*_mock, fetchData(_, _));
-//      _mobileClient->reject();
-// }
+TEST_F(MobileClientTest, shouldSuccedToSetIsReg)
+{
+_mobileClient->setIsReg(true);
+bool state = _mobileClient->getIsReg();
+if (!state)
+{
+    cout  << " --inconsistency " << endl;
+}
+}
 
-// TEST_F(MobileClientTest, shouldSuccedToUnregister)
-// {
-//      EXPECT_CALL(*_mock, fetchData(_, _));
-//      _mobileClient->reject();
-// }
-
-// TEST_F(MobileClientTest, shouldSuccedToGetName)
-// {
-//     _mobileClient->setName(NAME);
-//    string tname = _mobileClient->getName();
-// if (tname != NAME)
-// {
-//     cout << "error, name does not match "<< endl;
-// }
-
-//}
+TEST_F(MobileClientTest, shouldSuccedToGetIsReg)
+{
+_mobileClient->setIsReg(true);
+bool state = _mobileClient->getIsReg();
+if (!state)
+{
+    cout  << " --inconsistency " << endl;
+}
+}
