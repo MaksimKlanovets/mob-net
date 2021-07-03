@@ -4,7 +4,7 @@
 #endif
 #include "libsysrepocpp/headers/Session.hpp"
 
-namespace ns_NetConf
+ namespace ns_NetConf
 {
      class NetConfAgent;
 }
@@ -26,7 +26,7 @@ namespace nsMobileClient
  * 
  * @return true if ok, otherwise false
  */
-          bool registerClient(const string &name);
+          bool registerClient(const string &name, const string &number);
           /**
  * @brief print a message about event
  * 
@@ -130,14 +130,16 @@ namespace nsMobileClient
  * @return  status registration
  */
           bool getIsReg() const;
-
-     private:
-          /**
+          void setState(const string &number, const string &status);
+                 /**
  * @brief set whom we are calling, incoming number
  * 
  * @param number  number whom we are calling
  */
           void setIncomigNumber(const string &number);
+
+     private:
+   
           /**
  * @brief set state
  * 
@@ -145,8 +147,6 @@ namespace nsMobileClient
  * 
  * @param status - state for set
  */
-          void setState(const string &number, const string &status);
-
           unique_ptr<ns_NetConf::NetConfAgent> _netConfAgent;
           string _name;
           string _number;

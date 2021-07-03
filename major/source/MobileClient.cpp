@@ -4,7 +4,6 @@
 #endif
 
 using std::cout;
-
 namespace
 {
   const string MODULE_NAME = "mobile-network";
@@ -50,17 +49,14 @@ namespace nsMobileClient
     }
   }
 
-  bool MobileClient::registerClient(const string &name)
+  bool MobileClient::registerClient(const string &name, const string &number)
   {
 
-    if (!_netConfAgent->initSysrepo())
-    {
-      cout << "something with connection" << endl;
-    }
-
+    _netConfAgent->initSysrepo();
+    setNumber(number);
     setName(name);
     setState(_number, IDLE);
-
+  
     if (!_netConfAgent->registerOperData(MODULE_NAME, createPath(_number), *this) ||
         !_netConfAgent->subscriberForModelChanges(MODULE_NAME, *this, createPath(_number, PATH_STATE)))
     {
@@ -83,7 +79,6 @@ namespace nsMobileClient
   }
   void MobileClient::setNumber(const string &number)
   {
-    cout << "called setNumber" << endl;
     _number = number;
   }
 
@@ -262,5 +257,5 @@ namespace nsMobileClient
   {
     return _isReg;
   }
- 
+
 }

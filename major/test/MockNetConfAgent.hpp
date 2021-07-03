@@ -1,4 +1,3 @@
-
 #ifndef _NET_CONF_AGENT_HPP
 #define _NET_CONF_AGENT_HPP
 #include "NetConfAgent.hpp"

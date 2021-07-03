@@ -6,7 +6,7 @@
 #include "MobileClient.hpp"
 #include <cstring>
 #include "libsysrepocpp/headers/Session.hpp"
-using std::cout;
+using namespace std;
 
 namespace 
 {
@@ -116,9 +116,8 @@ my_map.emplace("register",[&]()
                    return;
                 }
             }
-        mobileClient.setNumber(number);
         
-        if (!mobileClient.registerClient(tempArg))
+        if (!mobileClient.registerClient(tempArg,number))
         {
             errorL =  "register is done with error";
             return ;
