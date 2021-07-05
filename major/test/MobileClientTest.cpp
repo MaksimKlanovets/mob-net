@@ -17,9 +17,7 @@ namespace
     const string NUMBER = "001";
     const string NAME_TWO = "MAT";
     const string NUMBER_TWO = "002";
-
     const string PATH = "/mobile-network:core/subscribers[number='";
-
     const string PATH_INC_NUM = "/incomingNumber";
     const string PATH_STATE = "/state";
 }
@@ -38,6 +36,7 @@ protected:
     {
         return PATH + key + "']" + suffix;
     }
+
     void mockRegisterClient(const string &name, const string &number)
     {
         EXPECT_CALL(*_mock, changeData(_)).Times(1);
@@ -60,10 +59,10 @@ protected:
     testing::StrictMock<MockNetConfAgent> *_mock;
 };
 /////////////////done
-TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
-{
-    //mockRegisterClient(NAME, NUMBER);
-}
+// TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
+// {
+//     mockRegisterClient(NAME, NUMBER);
+// }
 
 // TEST_F(MobileClientTest, shouldSuccedToHandleOperData)
 // {
@@ -101,65 +100,101 @@ TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
 //     EXPECT_CALL(*_mock, changeData(_)).Times(1);
 //     _mobileClient->setState(NUMBER, ACTIVE);
 // }
-
-TEST_F(MobileClientTest, shouldSuccedToMakeCall)
-{
-    mockRegisterClient(NAME, NUMBER);
-EXPECT_CALL(*_mock, changeData(_)).Times(3);
-    map<string, string> dataForOne;
-    map<string, string> dataForTwo;
-
-    dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
-    dataForTwo.emplace(createPath(NUMBER_TWO, PATH_STATE), IDLE);
-
-    // auto itUserState = dataForOne.find(createPath(NUMBER, PATH_STATE));
-    // cout << itUserState->first << "   " << itUserState->second << endl;
-
-    // auto itUser = dataForTwo.find(createPath(NUMBER_TWO, PATH_STATE));
-    // cout << itUser->first << "   " << itUser->second << endl;
-
-    EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
-        .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
-
-    EXPECT_CALL(*_mock, fetchData(createPath(NUMBER_TWO), _))
-        .WillOnce(DoAll(SetArgReferee<1>(dataForTwo), Return(true)));
-
-    _mobileClient->makeCall(NUMBER_TWO);
-}
-
-// TEST_F(MobileClientTest, shouldSuccedToAnswer)
+///DONE
+// TEST_F(MobileClientTest, shouldSuccedToMakeCallTrue)
 // {
+//     mockRegisterClient(NAME, NUMBER);
+//     EXPECT_CALL(*_mock, changeData(_)).Times(3);
+//     map<string, string> dataForOne;
+//     map<string, string> dataForTwo;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
+//     dataForTwo.emplace(createPath(NUMBER_TWO, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+//     EXPECT_CALL(*_mock, fetchData(createPath(NUMBER_TWO), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForTwo), Return(true)));
+//     _mobileClient->makeCall(NUMBER_TWO);
+// }
+////////////done
+// TEST_F(MobileClientTest, shouldSuccedToAnswerTrue)
+// {
+//     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(2);
-//     _mobileClient->setState(NUMBER, ACTIVE);
-//     _mobileClient->setState(INC_NUMBER, ACTIVE);
-//     EXPECT_CALL(*_mock, fetchData(_, _));
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber(),PATH_INC_NUM), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
 //     _mobileClient->answer();
 // }
-
-// TEST_F(MobileClientTest, shouldSuccedToCallEnd)
+///////////////DONE
+// TEST_F(MobileClientTest, shouldSuccedToCallEndTrue)
 // {
+//     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(3);
-//     _mobileClient->setIncomigNumber(NUMBER);
-//     _mobileClient->setState(NUMBER, IDLE);
-//     _mobileClient->setState(INC_NUMBER, IDLE);
-//     EXPECT_CALL(*_mock, fetchData(_, _));
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), ACTIVE);
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber(),PATH_INC_NUM)))
+//         .WillOnce(Return(true));
+//     EXPECT_CALL(*_mock, deleteItem(createPath(NUMBER_TWO,PATH_INC_NUM)))
+//         .WillOnce(Return(true));
 //     _mobileClient->callEnd();
 // }
-
-// TEST_F(MobileClientTest, shouldSuccedToReject)
+///////DONE
+// TEST_F(MobileClientTest, shouldSuccedToRejectTrue)
 // {
-//      EXPECT_CALL(*_mock, changeData(_)).Times(2);
-//      _mobileClient->setState(NUMBER, IDLE);
-//      _mobileClient->setState(INC_NUMBER, IDLE);
-//      EXPECT_CALL(*_mock, fetchData(_, _));
-//      _mobileClient->reject();
-// }
+//     mockRegisterClient(NAME, NUMBER);
+//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
 
-// TEST_F(MobileClientTest, shouldSuccedToUnregister)
-// {
-//     _mobileClient->setNumber(NUMBER);
-//     EXPECT_CALL(*_mock, fetchData(_, _)).Times(2);
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
+
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber(), PATH_INC_NUM)))
+//         .WillOnce(Return(true));
 //     _mobileClient->reject();
+// }
+//done
+// TEST_F(MobileClientTest, shouldSuccedToRejectTrueOutNum)
+// {
+//     mockRegisterClient(NAME, NUMBER);
+//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
+//     _mobileClient->setOutNUm(NUMBER_TWO);
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
+
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getOutNumber(), PATH_INC_NUM)))
+//         .WillOnce(Return(true));
+//     _mobileClient->reject();
+// }
+//done
+// TEST_F(MobileClientTest, shouldSuccedToUnregisterTrue)
+// {
+//     mockRegisterClient(NAME, NUMBER);
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber())))
+//         .WillOnce(Return(true));
+
+//     _mobileClient->unregister();
+// }
+//done
+// TEST_F(MobileClientTest, shouldSuccedToUnregisterFalse)
+// {
+//     mockRegisterClient(NAME, NUMBER);
+//     map<string, string> dataForOne;
+//     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
+//     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
+//         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
+
 //     _mobileClient->unregister();
 // }
 

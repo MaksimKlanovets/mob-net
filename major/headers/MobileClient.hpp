@@ -130,7 +130,10 @@ namespace nsMobileClient
  * @return  status registration
  */
           bool getIsReg() const;
+
           void setState(const string &number, const string &status);
+          void setOutNumber(const string& outName);
+          string getOutNumber()const;
                  /**
  * @brief set whom we are calling, incoming number
  * 

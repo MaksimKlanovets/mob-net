@@ -53,7 +53,7 @@ namespace nsMobileClient
     setNumber(number);
     setName(name);
     setState(_number, IDLE);
-  
+
     if (!_netConfAgent->registerOperData(MODULE_NAME, createPath(_number), *this) ||
         !_netConfAgent->subscriberForModelChanges(MODULE_NAME, *this, createPath(_number, PATH_STATE)))
     {
@@ -224,6 +224,16 @@ namespace nsMobileClient
     _isReg = false;
     _outNum.clear();
     return true;
+  }
+
+  void MobileClient::setOutNumber(const string &outName)
+  {
+    _outNum = outName;
+  }
+
+  string MobileClient::getOutNumber() const
+  {
+    return _outNum;
   }
 
   string MobileClient::getNumber()
