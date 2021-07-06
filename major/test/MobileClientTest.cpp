@@ -7,6 +7,7 @@ using ::testing::_;
 using ::testing::DoAll;
 using ::testing::Return;
 using ::testing::SetArgReferee;
+
 namespace
 {
     const string MODULE_NAME = "mobile-network";
@@ -40,17 +41,14 @@ protected:
     void mockRegisterClient(const string &name, const string &number)
     {
         EXPECT_CALL(*_mock, changeData(_)).Times(1);
-
         _mobileClient->setNumber(number);
         _mobileClient->setName(name);
-
         EXPECT_CALL(*_mock, initSysrepo())
             .WillOnce(Return(true));
         EXPECT_CALL(*_mock, registerOperData(MODULE_NAME, createPath(number), _))
             .WillOnce(Return(true));
         EXPECT_CALL(*_mock, subscriberForModelChanges(MODULE_NAME, _, createPath(number, PATH_STATE)))
             .WillOnce(Return(true));
-
         _mobileClient->registerClient(name, number);
     }
 
@@ -109,7 +107,12 @@ protected:
 // TEST_F(MobileClientTest, shouldSuccessedToMakeCall)
 // {
 //     mockRegisterClient(NAME, NUMBER);
-//     EXPECT_CALL(*_mock, changeData(_)).Times(3);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER_TWO, PATH_INC_NUM), NUMBER);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     const pair<string, string> setData1 = make_pair(createPath(NUMBER, PATH_STATE), BUSY);
+//     EXPECT_CALL(*_mock, changeData(setData1)).Times(1);
+//     const pair<string, string> setData2 = make_pair(createPath(NUMBER_TWO, PATH_STATE), BUSY);
+//     EXPECT_CALL(*_mock, changeData(setData2)).Times(1);
 //     map<string, string> dataForOne;
 //     map<string, string> dataForTwo;
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
@@ -124,7 +127,10 @@ protected:
 // TEST_F(MobileClientTest, shouldSuccessedToAnswer)
 // {
 //     mockRegisterClient(NAME, NUMBER);
-//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER, PATH_STATE), ACTIVE);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     const pair<string, string> setData1 = make_pair(createPath(NUMBER_TWO, PATH_STATE), ACTIVE);
+//     EXPECT_CALL(*_mock, changeData(setData1)).Times(1);
 //     map<string, string> dataForOne;
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
 //     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber(),PATH_INC_NUM), _))
@@ -135,15 +141,20 @@ protected:
 // TEST_F(MobileClientTest, shouldSuccessedToCallEnd)
 // {
 //     mockRegisterClient(NAME, NUMBER);
-//     EXPECT_CALL(*_mock, changeData(_)).Times(3);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER_TWO, PATH_INC_NUM), NUMBER);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     const pair<string, string> setData1 = make_pair(createPath(NUMBER_TWO, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData1)).Times(1);
+//     const pair<string, string> setData2 = make_pair(createPath(NUMBER, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData2)).Times(1);
 //     map<string, string> dataForOne;
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), ACTIVE);
 //     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
 //         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
-//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber(),PATH_INC_NUM)))
+//     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber(), PATH_INC_NUM)))
 //         .WillOnce(Return(true));
-//     EXPECT_CALL(*_mock, deleteItem(createPath(NUMBER_TWO,PATH_INC_NUM)))
+//     EXPECT_CALL(*_mock, deleteItem(createPath(NUMBER_TWO, PATH_INC_NUM)))
 //         .WillOnce(Return(true));
 //     _mobileClient->callEnd();
 // }
@@ -159,12 +170,13 @@ protected:
 // TEST_F(MobileClientTest, shouldSuccessedToReject)
 // {
 //     mockRegisterClient(NAME, NUMBER);
-//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
-
+//     const pair<string, string> setData = make_pair(createPath(NUMBER_TWO, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     const pair<string, string> setData1 = make_pair(createPath(NUMBER, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData1)).Times(1);
 //     map<string, string> dataForOne;
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_INC_NUM), NUMBER_TWO);
-
 //     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
 //         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
 //     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber(), PATH_INC_NUM)))
@@ -175,7 +187,10 @@ protected:
 // TEST_F(MobileClientTest, shouldSuccessedToRejectTrueOutNum)
 // {
 //     mockRegisterClient(NAME, NUMBER);
-//     EXPECT_CALL(*_mock, changeData(_)).Times(2);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER_TWO, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     const pair<string, string> setData1 = make_pair(createPath(NUMBER, PATH_STATE), IDLE);
+//     EXPECT_CALL(*_mock, changeData(setData1)).Times(1);
 //     _mobileClient->setOutNUm(NUMBER_TWO);
 //     map<string, string> dataForOne;
 //     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
@@ -258,4 +273,3 @@ protected:
 //     cout  << " --inconsistency " << endl;
 // }
 // }
-
