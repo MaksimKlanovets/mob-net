@@ -58,15 +58,14 @@ protected:
     std::unique_ptr<nsMobileClient::MobileClient> _mobileClient;
     testing::StrictMock<MockNetConfAgent> *_mock;
 };
-/////////////////done
-// TEST_F(MobileClientTest, shouldSuccedRegisterCleint)
+// TEST_F(MobileClientTest, shouldSuccessedRegisterCleint)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToHandleOperData)
+// TEST_F(MobileClientTest, shouldSuccessedToHandleOperData)
 // {
-//     _mobileClient->setName(NAME);
+//     mockRegisterClient(NAME, NUMBER);
 //     string tname = "testName";
 //     _mobileClient->handleOperData(tname);
 //     if (NAME != tname)
@@ -75,33 +74,39 @@ protected:
 //     }
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToSetName)
+// TEST_F(MobileClientTest, shouldSuccessedToSetName)
 // {
-//     _mobileClient->setName(NAME);
+//     mockRegisterClient(NAME, NUMBER);
+
+//     _mobileClient->setName(NAME_TWO);
 //     string tName = _mobileClient->getName();
-//     if (NAME != tName)
+//     if (NAME == tName)
 //     {
 //         cout << "incName->" << NAME << ";\toutgoing->" << tName << " --inconsistency " << endl;
 //     }
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToSetNumber)
+// TEST_F(MobileClientTest, shouldSuccessedToSetNumber)
 // {
-//     _mobileClient->setNumber(NUMBER);
+//     mockRegisterClient(NAME, NUMBER);
+
+//     _mobileClient->setNumber(NUMBER_TWO);
 //     string tNumber = _mobileClient->getNumber();
-//     if (NUMBER != tNumber)
+//     if (NUMBER == tNumber)
 //     {
 //         cout << "incNumber->" << NUMBER << ";\toutgoing->" << tNumber << " --inconsistency " << endl;
 //     }
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToSetState)
+// TEST_F(MobileClientTest, shouldSuccessedToSetIncomingNumber)
 // {
-//     EXPECT_CALL(*_mock, changeData(_)).Times(1);
-//     _mobileClient->setState(NUMBER, ACTIVE);
+//     mockRegisterClient(NAME, NUMBER);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER_TWO, PATH_INC_NUM), NUMBER);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     _mobileClient->setIncomigNumber(NUMBER_TWO);
 // }
-///DONE
-// TEST_F(MobileClientTest, shouldSuccedToMakeCallTrue)
+
+// TEST_F(MobileClientTest, shouldSuccessedToMakeCall)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(3);
@@ -115,8 +120,8 @@ protected:
 //         .WillOnce(DoAll(SetArgReferee<1>(dataForTwo), Return(true)));
 //     _mobileClient->makeCall(NUMBER_TWO);
 // }
-////////////done
-// TEST_F(MobileClientTest, shouldSuccedToAnswerTrue)
+
+// TEST_F(MobileClientTest, shouldSuccessedToAnswer)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(2);
@@ -126,8 +131,8 @@ protected:
 //         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
 //     _mobileClient->answer();
 // }
-///////////////DONE
-// TEST_F(MobileClientTest, shouldSuccedToCallEndTrue)
+
+// TEST_F(MobileClientTest, shouldSuccessedToCallEnd)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(3);
@@ -142,8 +147,16 @@ protected:
 //         .WillOnce(Return(true));
 //     _mobileClient->callEnd();
 // }
-///////DONE
-// TEST_F(MobileClientTest, shouldSuccedToRejectTrue)
+
+// TEST_F(MobileClientTest, shouldSuccessedToSetState)
+// {
+//     mockRegisterClient(NAME, NUMBER);
+//     const pair<string, string> setData = make_pair(createPath(NUMBER, PATH_STATE), ACTIVE);
+//     EXPECT_CALL(*_mock, changeData(setData)).Times(1);
+//     _mobileClient->setState(NUMBER, ACTIVE);
+// }
+
+// TEST_F(MobileClientTest, shouldSuccessedToReject)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(2);
@@ -158,8 +171,8 @@ protected:
 //         .WillOnce(Return(true));
 //     _mobileClient->reject();
 // }
-//done
-// TEST_F(MobileClientTest, shouldSuccedToRejectTrueOutNum)
+
+// TEST_F(MobileClientTest, shouldSuccessedToRejectTrueOutNum)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     EXPECT_CALL(*_mock, changeData(_)).Times(2);
@@ -173,8 +186,8 @@ protected:
 //         .WillOnce(Return(true));
 //     _mobileClient->reject();
 // }
-//done
-// TEST_F(MobileClientTest, shouldSuccedToUnregisterTrue)
+
+// TEST_F(MobileClientTest, shouldSuccesseddToUnregister)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     map<string, string> dataForOne;
@@ -186,8 +199,8 @@ protected:
 
 //     _mobileClient->unregister();
 // }
-//done
-// TEST_F(MobileClientTest, shouldSuccedToUnregisterFalse)
+
+// TEST_F(MobileClientTest, shouldFailedToUnregister)
 // {
 //     mockRegisterClient(NAME, NUMBER);
 //     map<string, string> dataForOne;
@@ -198,26 +211,35 @@ protected:
 //     _mobileClient->unregister();
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToGetName)
+// TEST_F(MobileClientTest, shouldSuccessedToGetName)
 // {
-//     _mobileClient->setName(NAME);
+//     mockRegisterClient(NAME, NUMBER);
 //     string tname = _mobileClient->getName();
 //     if (tname != NAME)
 //     {
 //         cout << "error, name does not match " << endl;
 //     }
-// }
+//}
 
-// TEST_F(MobileClientTest, shouldSuccedToCreatePath)
+// TEST_F(MobileClientTest, shouldSuccessedToCreatePathWithoutKey)
 // {
 //     string path = _mobileClient->createPath(NUMBER);
 //     if (path != (PATH + NUMBER +"']"))
 //     {
 //         cout  << " --inconsistency " << endl;
 //     }
+//}
+
+// TEST_F(MobileClientTest, shouldSuccessedToCreatePathWithKey)
+// {
+//     string path = _mobileClient->createPath(NUMBER,PATH_INC_NUM);
+//     if (path != (PATH + NUMBER +"']" + PATH_INC_NUM))
+//     {
+//         cout  << " --inconsistency " << endl;
+//     }
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToSetIsReg)
+// TEST_F(MobileClientTest, shouldSuccessedToSetIsReg)
 // {
 // _mobileClient->setIsReg(true);
 // bool state = _mobileClient->getIsReg();
@@ -227,7 +249,7 @@ protected:
 // }
 // }
 
-// TEST_F(MobileClientTest, shouldSuccedToGetIsReg)
+// TEST_F(MobileClientTest, shouldSuccessedToGetIsReg)
 // {
 // _mobileClient->setIsReg(true);
 // bool state = _mobileClient->getIsReg();
@@ -236,3 +258,4 @@ protected:
 //     cout  << " --inconsistency " << endl;
 // }
 // }
+
