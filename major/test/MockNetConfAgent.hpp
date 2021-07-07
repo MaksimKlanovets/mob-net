@@ -15,5 +15,6 @@ public:
   MOCK_METHOD(bool, notifySysrepo, (const string &module_name), (override));
   MOCK_METHOD(bool, changeData, ((const pair<string, string> &setData)), (override));
   MOCK_METHOD(bool, deleteItem, (const string &path), (override));
+  
 };
 #endif
