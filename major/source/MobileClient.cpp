@@ -132,6 +132,7 @@ namespace nsMobileClient
 
     if (_netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch))
     {
+      _outNum.clear();
       auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
       setState(_number, ACTIVE);
       setState(it->second, ACTIVE);
@@ -149,10 +150,11 @@ namespace nsMobileClient
     auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
     auto it1 = dataForFetch.find(createPath(_number, PATH_STATE));
     string temp{_outNum};
+    _outNum.clear();
 
     if (it1->second != ACTIVE)
     {
-      cout << "no active phone call, operation not available 1" << endl;
+      cout << "no active phone call, operation not available " << endl;
       return;
     }
     if (it != dataForFetch.end())
@@ -165,7 +167,6 @@ namespace nsMobileClient
     }
     else
     {
-      _outNum.clear();
       _netConfAgent->deleteItem(createPath(temp, PATH_INC_NUM));
       setState(temp, IDLE);
       setState(_number, IDLE);
