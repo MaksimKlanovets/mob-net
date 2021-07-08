@@ -1,0 +1,70 @@
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+        <number>102</number>
+        <incomingNumber>3232</incomingNumber>
+        <state>idle</state>
+     </subscribers>
+   </core>
+  </config>
+</edit-config>
+
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+        <number>911</number>
+        <incomingNumber></incomingNumber>
+        <state>idle</state>
+     </subscribers>
+   </core>
+  </config>
+</edit-config>
+
+
+ <activate-software-image xmlns="ns:mobNetwork">
+         <image-name>something here</image-name>
+      </activate-software-image>
+
+
+    <notification
+         xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+         <eventTime>2007-09-01T10:00:00Z</eventTime>
+       <test-notif xmlns="ns:mobNetwork">
+         <val1>value-one</val1>
+         <val2>value-two</val2>
+       </test-notif>
+     </notification>
+
+      <activate-software-image xmlns="ns:mobNetwork">
+         <image-name>something here</image-name>
+      </activate-software-image>
+
+
+<edit-config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <target>
+    <running/>
+  </target>
+  <error-option>rollback-on-error</error-option>
+  <config>
+   <core xmlns="ns:mobNetwork">
+     <subscribers>
+        
+        <number>002</number>
+        <incomingNumber>+790-002</incomingNumber>
+        <state>idle</state>
+     </subscribers>
+   </core>
+  </config>
+</edit-config>
+
+

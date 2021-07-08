@@ -1,0 +1,63 @@
+module mobile-network {
+    namespace "ns:mobNetwork";
+
+    prefix mobnet;
+    
+rpc activate-software-image {
+         input {
+             leaf image-name {
+                 type string;
+             }
+         }
+         output {
+             leaf status {
+                 type string;
+             }
+         }
+     }
+container core
+{
+   config true;
+
+    list subscribers
+    {
+       key "number";
+
+        leaf userName {
+            config false;
+            type string;
+            description "User name ";
+        }
+
+        leaf number {
+            description "User phone number";
+            type string ;
+        }
+         
+        leaf incomingNumber{
+            description "Incoming number";
+            type string;
+        }
+
+        leaf state{
+            description "User's state";
+            mandatory true;
+            type enumeration {
+                 enum busy; 
+                 enum active ;
+                 enum idle;
+            }
+        } 
+        
+    }
+}
+  notification test-notif {
+    leaf val1 {
+      type string;
+    }
+    leaf val2 {
+      type string;
+    }
+  }
+   
+}
