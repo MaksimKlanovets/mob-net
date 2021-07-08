@@ -10,17 +10,17 @@ using ::testing::SetArgReferee;
 
 namespace
 {
-    const string MODULE_NAME = "mobile-network";
-    const string BUSY = "busy";
-    const string ACTIVE = "active";
-    const string IDLE = "idle";
     const string NAME = "Max";
     const string NUMBER = "001";
     const string NAME_TWO = "MAT";
     const string NUMBER_TWO = "002";
-    const string PATH = "/mobile-network:core/subscribers[number='";
-    const string PATH_INC_NUM = "/incomingNumber";
+    const string BUSY = "busy";
+    const string IDLE = "idle";
+    const string ACTIVE = "active";
     const string PATH_STATE = "/state";
+    const string MODULE_NAME = "mobile-network";
+    const string PATH_INC_NUM = "/incomingNumber";
+    const string PATH = "/mobile-network:core/subscribers[number='";
 }
 
 class MobileClientTest : public testing::Test
@@ -99,7 +99,6 @@ TEST_F(MobileClientTest, shouldSuccessedToHandleOperData)
 TEST_F(MobileClientTest, shouldSuccessedToSetName)
 {
     mockRegisterClient(NAME, NUMBER);
-
     _mobileClient->setName(NAME_TWO);
     string tName = _mobileClient->getName();
     if (NAME == tName)
@@ -111,7 +110,6 @@ TEST_F(MobileClientTest, shouldSuccessedToSetName)
 TEST_F(MobileClientTest, shouldSuccessedToSetNumber)
 {
     mockRegisterClient(NAME, NUMBER);
-
     _mobileClient->setNumber(NUMBER_TWO);
     string tNumber = _mobileClient->getNumber();
     if (NUMBER == tNumber)
@@ -151,7 +149,6 @@ TEST_F(MobileClientTest, shouldSuccessedToMakeCall)
 TEST_F(MobileClientTest, shouldFailedToMakeCall)
 {
     mockRegisterClient(NAME, NUMBER);
-
     map<string, string> dataForOne;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
@@ -162,7 +159,6 @@ TEST_F(MobileClientTest, shouldFailedToMakeCall)
 TEST_F(MobileClientTest, shouldFailedToMakeCall_1)
 {
     mockRegisterClient(NAME, NUMBER);
-
     map<string, string> dataForOne;
     map<string, string> dataForTwo;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
@@ -177,7 +173,6 @@ TEST_F(MobileClientTest, shouldFailedToMakeCall_1)
 TEST_F(MobileClientTest, shouldFailedToMakeCall_2)
 {
     mockRegisterClient(NAME, NUMBER);
-
     map<string, string> dataForOne;
     map<string, string> dataForTwo;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
@@ -192,20 +187,17 @@ TEST_F(MobileClientTest, shouldFailedToMakeCall_2)
 TEST_F(MobileClientTest, shouldFailedToMakeCall_3)
 {
     mockRegisterClient(NAME, NUMBER);
-
     map<string, string> dataForOne;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), ACTIVE);
     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
     _mobileClient->makeCall(NUMBER_TWO);
-
 }
 
 TEST_F(MobileClientTest, shouldFailedToMakeCall_4)
 {
     const string notExistingNumber = "1234";
     mockRegisterClient(NAME, NUMBER);
-
     map<string, string> dataForOne;
     map<string, string> dataForTwo;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), IDLE);
@@ -322,7 +314,6 @@ TEST_F(MobileClientTest, shouldSuccessedToRejectTrueOutNum)
     _mobileClient->setOutNUm(NUMBER_TWO);
     map<string, string> dataForOne;
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
-
     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getOutNumber(), PATH_INC_NUM)))
@@ -339,7 +330,6 @@ TEST_F(MobileClientTest, shouldSuccesseddToUnregister)
         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
     EXPECT_CALL(*_mock, deleteItem(createPath(_mobileClient->getNumber())))
         .WillOnce(Return(true));
-
     _mobileClient->unregister();
 }
 
@@ -350,7 +340,6 @@ TEST_F(MobileClientTest, shouldFailedToUnregister)
     dataForOne.emplace(createPath(_mobileClient->getNumber(), PATH_STATE), BUSY);
     EXPECT_CALL(*_mock, fetchData(createPath(_mobileClient->getNumber()), _))
         .WillOnce(DoAll(SetArgReferee<1>(dataForOne), Return(true)));
-
     _mobileClient->unregister();
 }
 

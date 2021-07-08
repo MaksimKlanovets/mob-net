@@ -257,7 +257,6 @@ namespace ns_NetConf
         try
         {
             libyang::S_Data_Node data = _session->get_data(xpath.c_str());
-
             if (data != nullptr)
             {
                 for (libyang::S_Data_Node &root : data->tree_for())
@@ -308,7 +307,6 @@ namespace ns_NetConf
                 string state{};
                 string incomNum{};
                 string incomState{};
-
                 for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                 {
                     if (it->first == pathCh + "/state")
@@ -325,7 +323,6 @@ namespace ns_NetConf
                     string pathChInc = pathM + incomNum + "']";
                     dataForFetch.clear();
                     fetchData(pathChInc, dataForFetch);
-
                     for (map<string, string>::const_iterator it = dataForFetch.begin(); it != dataForFetch.end(); it++)
                     {
                         if (it->first == pathChInc + "/state")
@@ -337,7 +334,6 @@ namespace ns_NetConf
                 mobClient.handleModuleChange(state, incomNum, incomState);
                 return SR_ERR_OK;
             };
-
             _subscribe->module_change_subscribe(module_name.c_str(), cb, xpath.c_str(), 0, SR_SUBSCR_DONE_ONLY);
         }
         catch (const std::exception &e)
@@ -393,18 +389,6 @@ namespace ns_NetConf
                  << endl;
 
             _subscribe->rpc_subscribe("/mobile-network:activate-software-image", cbVals, 1);
-
-            //    auto in_vals = std::make_shared<sysrepo::Vals>(1);
-
-            //     in_vals->val(0)->set("/mobile-network:activate-software-image/image-name","set somthing in input ", SR_STRING_T);
-
-            //             cout << "\n ========== START RPC CALL ==========\n" << endl;
-            //     auto out_vals = m_Session->rpc_send("/mobile-network:activate-software-image", in_vals);
-
-            //     cout << "\n ========== PRINT RETURN VALUE ==========\n" << endl;
-            //     for(size_t n=0; n < out_vals->val_cnt(); ++n)
-            //         print_value(out_vals->val(n));
-
             cout << "\n ========== END PROGRAM ==========\n"
                  << endl;
         }
@@ -425,12 +409,9 @@ namespace ns_NetConf
             auto in_trees = std::make_shared<libyang::Data_Node>(ctx, "/mobile-network:test-notif", nullptr, LYD_ANYDATA_CONSTSTRING, 0);
             std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val1", "some-value"));
             std::make_shared<libyang::Data_Node>(libyang::Data_Node(in_trees, mod, "val2", "some-other-value"));
-
             cout << "\n ========== START NOTIF TREE SEND ==========\n"
                  << endl;
-
             _session->event_notif_send(in_trees);
-
             cout << "\n ========== END PROGRAM NOTIF==========\n"
                  << endl;
         }

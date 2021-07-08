@@ -48,7 +48,6 @@ namespace nsMobileClient
 
   bool MobileClient::registerClient(const string &name, const string &number)
   {
-
     _netConfAgent->initSysrepo();
     setNumber(number);
     setName(name);
@@ -59,7 +58,6 @@ namespace nsMobileClient
     {
       return false;
     }
-
     _isReg = true;
     cout << "registration completed" << endl;
     return true;
@@ -91,7 +89,6 @@ namespace nsMobileClient
     map<string, string> dataForUser;
     _netConfAgent->fetchData(createPath(_number), dataForUser);
     auto itUserState = dataForUser.find(createPath(_number, PATH_STATE));
-
     if (itUserState->second == IDLE)
     {
       _outNum.clear();
@@ -129,7 +126,6 @@ namespace nsMobileClient
   void MobileClient::answer()
   {
     map<string, string> dataForFetch;
-
     if (_netConfAgent->fetchData(createPath(_number, PATH_INC_NUM), dataForFetch))
     {
       _outNum.clear();
@@ -151,7 +147,6 @@ namespace nsMobileClient
     auto it1 = dataForFetch.find(createPath(_number, PATH_STATE));
     string temp{_outNum};
     _outNum.clear();
-
     if (it1->second != ACTIVE)
     {
       cout << "no active phone call, operation not available " << endl;
@@ -184,15 +179,12 @@ namespace nsMobileClient
     map<string, string> dataForFetch;
     _netConfAgent->fetchData(createPath(_number), dataForFetch);
     auto itState = dataForFetch.find(createPath(_number, PATH_STATE));
-
     if (itState->second != BUSY)
     {
       cout << "command is not correct" << endl;
       return;
     }
-
     auto it = dataForFetch.find(createPath(_number, PATH_INC_NUM));
-
     if (it != dataForFetch.end())
     {
       setState(it->second, IDLE);
@@ -205,7 +197,6 @@ namespace nsMobileClient
       setState(_outNum, IDLE);
       _netConfAgent->deleteItem(createPath(_outNum, PATH_INC_NUM));
     }
-
     _outNum.clear();
   }
 
@@ -214,12 +205,10 @@ namespace nsMobileClient
     map<string, string> dataForFetch;
     _netConfAgent->fetchData(createPath(_number), dataForFetch);
     auto itState = dataForFetch.find(createPath(_number, PATH_STATE));
-
     if (itState->second != IDLE)
     {
       return false;
     }
-
     _netConfAgent->deleteItem(createPath(_number));
     _netConfAgent->~NetConfAgent();
     _isReg = false;
@@ -265,5 +254,4 @@ namespace nsMobileClient
   {
     return _isReg;
   }
-
 }
